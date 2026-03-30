@@ -15,12 +15,13 @@ This project aims to play a game of snake using an artificially intelligent mode
 | --- | --- | --- |
 | 0-3 | Direction | The newly chosen direction of the snake (0 is up, 1 is down, 2 is left, 3 is right) |
 
+## Layers
 There are two layers, of 256 and then 128 neurons
 
 A ReLU activation function is used
 
 # Training
-To train the model, it is run for a full game and then it's performance is used to adjust the it's parameters
+To train the model, it is run for a number of steps, starting new games until step number is reached, and then it's performance is used to back-propagate parameters. This is done using Generalised Advantage Estimation (GAE) and Proximal Policy Optimisation (PPO).
 
 ## Reward Function
 | Name | Gain/Loss (+/-) | Description |
@@ -28,6 +29,7 @@ To train the model, it is run for a full game and then it's performance is used 
 | Score | +10 | Reward for each snake length / apples collected / game score |
 | Iterations | -0.1 | Penalty for how long the game lasted, per iteration |
 | Win | +500 | Massive reward for winning game |
+| Loss | -20 | Punishment for losing
 
 
 
