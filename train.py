@@ -1,14 +1,16 @@
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import os
 
-import runGame
+import snakeGame
 
 N_INPUTS = 20
 N_OUTPUTS = 4
 
 GAMMA = 0.99  # discount factor
-GAE_LAMBDA = 0.95  # generalised advantage estimation λ
+GAE_LAMBDA = 0.95  # generalised advantage estimation (λ)
+LEARNING_RATE_ACTOR = 3e-4
 TRAINING_EPS = 60
 CHECKPOINT_EVERY = 5
 STEPS_PER_EP = 200
@@ -47,23 +49,31 @@ def compute_gae(rewards, values, dones, next_value, gamma=GAMMA, lam=GAE_LAMBDA)
     return advantages, returns
 
 
+def ppo_update():
+    optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE_ACTOR)
+
+
 def train_rl(model, episodes):
     for ep in range(episodes):
         steps = 0
-        rewards = []
-        values = []
-        dones = []
+        rewards_buffer = []
+        values_buffer = []
+        dones_buffer = []
 
         while steps < STEPS_PER_EP:
-            iterations, new_values, new_rewards, next_val = runGame.gameLoop(
+            iterations, new_values, new_rewards, next_val = snakeGame.gameLoop(
                 steps=STEPS_PER_EP, startStep=steps
             )
             steps += iterations
-            values += new_values
-            rewards += new_rewards
-            dones += ([0] * (iterations - 1)) + [1]
+            values_buffer += new_values
+            rewards_buffer += new_rewards
+            dones_buffer += ([0] * (iterations - 1)) + [1]
 
-        advantages, returns = compute_gae(rewards, values, dones, next_val)
+        advantages, returns = compute_gae(
+            rewards_buffer, values_buffer, dones_buffer, next_val
+        )
+        advs_t = torch.tensor(advantages, dtype=torch.float32).to(device)
+        rets_t = torch.tensor(returns, dtype=torch.float32).to(device)
 
         # Save checkpoints
         if ep % CHECKPOINT_EVERY == 0 and ep != episodes:
