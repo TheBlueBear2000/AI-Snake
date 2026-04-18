@@ -181,6 +181,10 @@ class Environment:
 def gameLoop():
     env = Environment()
     agent = Agent(alpha=1e-5, n_actions=env.n_actions)
+    # Do dummy observation to demonstrate shape of modle to tf before loading
+    observation = env.extractObservation()
+    agent.choose_action(observation)
+
     agent.load_models()
 
     done = False
@@ -195,4 +199,6 @@ def gameLoop():
 
 
 if __name__ == "__main__":
+    from train import Agent
+
     gameLoop()

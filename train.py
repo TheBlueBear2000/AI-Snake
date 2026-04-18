@@ -94,14 +94,10 @@ if __name__ == "__main__":
         done = False
         score = 0
 
-        print("starting game", i)
-        # gameloop:
+        # "gameloop"
         while not done:
             action = agent.choose_action(observation)
-            # print("about to attempt action:", action)
             reward, done = env.doMove(action - 1)  # Action is 0-2, function takes -1-1
-            # env.render()
-            # print("game output:", reward, done)
 
             observation_ = env.extractObservation()
             score += reward
@@ -109,7 +105,7 @@ if __name__ == "__main__":
                 agent.learn(observation, reward, observation_, done)
             observation = observation_
 
-        print("game", i, ":", score)
+        print(f"Game {i} score: {score}")
         score_history.append(score)
         avg_score = np.mean(score_history[-100:])
 

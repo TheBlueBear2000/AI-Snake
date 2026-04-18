@@ -9,3 +9,5 @@ pyvenv.cfg
 
 __pycache__/
 venv310-AI-Snake/share/man/man1/ttx.1
+snakeGame.py
+.DS_Store
