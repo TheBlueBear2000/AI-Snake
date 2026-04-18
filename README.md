@@ -57,15 +57,22 @@ The first time I ran it, I forgot to reset the environment at each turn:
 ![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic1.png?raw=true)
 
 Having fixed this, I saw a trending improvement in the model:
+
 ![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic2.png?raw=true)
 
 This solution simply went forwards into a wall, as it learned that minimising it's time spent alive was a better solution than attempting to find an apple to increase it's score, and it finished every game with a score of -7.
 
 After some parameter adjustment, I got this:
+
 ![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic3.png?raw=true)
 
 Overall this performed worse, scoring an average of about -9 at the end of each game, but did attempt to explore more, which is good, and as a result had a more varied final score (sometimes positive)
 
-I was also rating a model's performance by averaging the scores of the previous 100 models, which I decided to drop to 10, to allow for more localised improvements. I also further tuned the parameters, mainly increasing the reward of getting an apple, as this insentivises exploring more.
+After this attempt, the model explored more:
+
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic4.png?raw=true)
+
+After some work on tuning parameters and increasing training time, these were the results of several attempts:
+
 
 
