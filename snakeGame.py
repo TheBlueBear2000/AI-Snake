@@ -51,7 +51,6 @@ class Environment:
             or new_coordinate[1] >= self.arena_dims[1]
         ):
             # Died
-            print("died")
             return 0, True  # reward, done
 
         self.snake.append(new_coordinate)
@@ -60,7 +59,7 @@ class Environment:
             self.apples.pop(self.apples.index(new_coordinate))
             self.placeNewApples()
             # Apple
-            return 15, False  # reward, done
+            return 50, False  # reward, done
 
         self.snake.pop(0)  # Only remove tail coord if apple not collected
 

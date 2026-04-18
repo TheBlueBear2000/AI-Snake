@@ -31,5 +31,38 @@ To train the model, a game is run and rewards are collected at each step. After 
 | Win | +10,000 | Massive reward for winning game |
 | Loss | 0 | Punishment for losing |
 
+---
+
+# Dev Log:
+## Intro and overview
+Initially I didn't really know what I was doing. I had done work with imitation modelling and the algorithms around that, but I had never ventured into RL systems. I made a terminal version of snake many years ago when I was still in school and I knew the environment would be quick to set up, so I thought it would be an excellent introductory project into RL. 
+
+After quite abit of research, I found that there were a few different approaches to RL, but that a great one to start with is Actor-Critic. Having attempted to follow a very convoluted Medium article that also promised to explain PPO (not yet necessary to me), I eventually found a YouTube video by @MachineLearningwithPhil that perfectly explained all of the concepts I would need. As per his advice, I switched to TensorFlow as the main library for the project. Although I am very aware that PyTorch is more standard, it was unnecessarily complicated for the project so far, and a simpler environment would also help me to consider the codebase more clearly.
+
+## 26/03/2026
+I began by copying what I thought was the simplest solution from another project I had been working with, but which had been generated using Claude (and therefore I did not yet understand). In order to make sure I understood the code as best as possible, I copied each line manually, reading it in it's context. Unfortunately, this did not work very well, and I found myself completely lost. I did however set up a rendering environment for the game, with filler code to test models.
+
+## 30/03/2026
+I attempted to implement GAE and PPO into my model, but since I did not understand them at all, it did not work.
+
+## 18/04/2026
+Having watched the entire video yesterday, I set about implementing the concepts and refactoring the entire codebase. This included writing:
+- A single Actor-Critic network with two heads (one for actor and one for critic)
+- An agent to train both networks and to handle the model data
+- An environment (building on what I had done previously, but with heavy adjustment)
+I also changed the model size system to provide only 3 actions, and for all observations to be relative to the orientation of the head.
+
+The first time I ran it, I forgot to reset the environment at each turn:
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic1.png?raw=true)
+
+Having fixed this, I saw a trending improvement in the model:
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic2.png?raw=true)
+This solution simply went forwards into a wall, as it learned that minimising it's time spent alive was a better solution than attempting to find an apple to increase it's score, and it finished every game with a score of -7.
+
+After some parameter adjustment, I got this:
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic3.png?raw=true)
+Overall this performed worse, scoring an average of about -9 at the end of each game, but did attempt to explore more, which is good, and as a result had a more varied final score (sometimes positive)
+
+I was also rating a model's performance by averaging the scores of the previous 100 models, which I decided to drop, to allow for more localised improvements.
 
 
