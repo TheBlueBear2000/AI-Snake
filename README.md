@@ -26,8 +26,8 @@ To train the model, a game is run and rewards are collected at each step. After 
 ## Reward Function
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
-| Score | +15 | Reward for collecting an apple |
-| Iterations | -1 | Penalty for not completing game quickly |
+| Apple | +100 | Reward for collecting an apple |
+| Iteration | -1 | Penalty for doing nothing |
 | Win | +10,000 | Massive reward for winning game |
 | Loss | 0 | Punishment for losing |
 
@@ -63,6 +63,6 @@ After some parameter adjustment, I got this:
 ![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic3.png?raw=true)
 Overall this performed worse, scoring an average of about -9 at the end of each game, but did attempt to explore more, which is good, and as a result had a more varied final score (sometimes positive)
 
-I was also rating a model's performance by averaging the scores of the previous 100 models, which I decided to drop, to allow for more localised improvements.
+I was also rating a model's performance by averaging the scores of the previous 100 models, which I decided to drop to 10, to allow for more localised improvements. I also further tuned the parameters, mainly increasing the reward of getting an apple, as this insentivises exploring more.
 
 

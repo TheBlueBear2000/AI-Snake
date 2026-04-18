@@ -59,7 +59,7 @@ class Environment:
             self.apples.pop(self.apples.index(new_coordinate))
             self.placeNewApples()
             # Apple
-            return 50, False  # reward, done
+            return 100, False  # reward, done
 
         self.snake.pop(0)  # Only remove tail coord if apple not collected
 
