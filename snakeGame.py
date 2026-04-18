@@ -75,7 +75,7 @@ class Environment:
             self.snake.pop(0)  # Only remove tail coord if apple not collected
 
         # Nothing
-        return -3, False  # reward, done
+        return 0, False  # reward, done
 
     def placeNewApples(self):
         while len(self.apples) < min(

@@ -75,5 +75,8 @@ After this attempt, the model explored more:
 
 At this point I decided to adjust the environment to make the snake longer. Previously the snake started at length 1 and added 1 length per apple, but I decided to change it to start at length 3 and add 2 per apple. I also realised that I did not need the check for range behind the snake, since there will always be more snake behind it.
 
+Having done this, the performance of the model became much more varied, and there was more range of score. By the end, the score was on average positive, which was excellent, as it meant the model was almost always collecting an apple within a certain number of moves (on average)
 
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic7.png?raw=true)
 
+Out of interest, I then tried switching removing the punishment for time, to see if removing the insentive to end the game early would allow the snake to focus on collecting apples
