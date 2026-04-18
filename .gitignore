@@ -5,5 +5,7 @@ lib/
 notes/
 
 pyvenv.cfg
+.python-version
 
-__pycache__/runGame.cpython-314.pyc
+__pycache__/
+venv310-AI-Snake/share/man/man1/ttx.1

@@ -3,7 +3,7 @@ import tensorflow.keras as keras
 from tensorflow.keras.layers import Dense
 
 
-class ActorCritic(keras.Model):
+class ActorCriticNet(keras.Model):
     def __init__(
         self,
         n_actions,
@@ -12,13 +12,13 @@ class ActorCritic(keras.Model):
         name="actor-critic",
         checkpoint_dir="checkpoints/actor-critic",
     ):
-        super(ActorCritic, self).__init__()
+        super(ActorCriticNet, self).__init__()
         self.fc1_dims = fc1_dims
         self.fc2_dims = fc2_dims
         self.n_actions = n_actions
         self.model_name = name
         self.checkpoint_dir = checkpoint_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name + "_ac")
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, name + ".weights.h5")
 
         self.fc1 = Dense(self.fc1_dims, activation="relu")
         self.fc2 = Dense(self.fc2_dims, activation="relu")
