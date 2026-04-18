@@ -3,11 +3,9 @@ venv/
 bin/
 lib/
 notes/
+__pycache__/
+venv310-AI-Snake/
 
 pyvenv.cfg
 .python-version
-
-__pycache__/
-venv310-AI-Snake/share/man/man1/ttx.1
-snakeGame.py
 .DS_Store

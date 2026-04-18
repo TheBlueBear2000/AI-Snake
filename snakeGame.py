@@ -5,6 +5,8 @@ from math import sqrt
 RENDER_FPS = 2
 DIRECTIONS = ["up", "right", "down", "left"]
 MAX_APPLES = 3
+START_LENGTH = 3
+APPLE_LENGTH_BONUS = 2
 
 
 class Environment:
@@ -12,12 +14,14 @@ class Environment:
         self.n_actions = 3
         self.arena_dims = (20, 15)
         self.snake = [(self.arena_dims[0] // 2, self.arena_dims[1] // 2)]
+        self.snake_backlog = START_LENGTH - 1
         self.apples = []
         self.placeNewApples()
         self.direction = "up"
 
     def reset(self):
         self.snake = [(self.arena_dims[0] // 2, self.arena_dims[1] // 2)]
+        self.snake_backlog = START_LENGTH - 1
         self.apples = []
         self.placeNewApples()
         self.direction = "up"
@@ -44,13 +48,16 @@ class Environment:
             new_coordinate = (self.snake[-1][0] + 1, self.snake[-1][1])
 
         if (
-            new_coordinate in self.snake
-            or new_coordinate[0] < 0
+            new_coordinate[0] < 0
             or new_coordinate[0] >= self.arena_dims[0]
             or new_coordinate[1] < 0
             or new_coordinate[1] >= self.arena_dims[1]
         ):
-            # Died
+            # Died by hitting wall
+            return -50, True  # reward, done
+
+        if new_coordinate in self.snake:
+            # Died by hitting self
             return 0, True  # reward, done
 
         self.snake.append(new_coordinate)
@@ -58,13 +65,17 @@ class Environment:
         if new_coordinate in self.apples:
             self.apples.pop(self.apples.index(new_coordinate))
             self.placeNewApples()
+            self.snake_backlog = APPLE_LENGTH_BONUS - 1
             # Apple
             return 100, False  # reward, done
 
-        self.snake.pop(0)  # Only remove tail coord if apple not collected
+        if self.snake_backlog > 0:
+            self.snake_backlog -= 1
+        else:
+            self.snake.pop(0)  # Only remove tail coord if apple not collected
 
         # Nothing
-        return -1, False  # reward, done
+        return -3, False  # reward, done
 
     def placeNewApples(self):
         while len(self.apples) < min(
@@ -113,7 +124,7 @@ class Environment:
         elif self.direction == "right":
             values += [int(not left), int(left), int(above), int(not above)]
 
-        # values 4-7 (immediate danger)
+        # values 4-6 (immediate danger)
         changes = [(0, -1), (1, 0), (0, 1), (-1, 0)]
         # Iterates from starting point depending on direction
         for i in list(range(DIRECTIONS.index(self.direction), len(changes))) + list(
@@ -130,8 +141,9 @@ class Environment:
                     or new_coordinate[1] >= self.arena_dims[1]
                 )
             )
+        values.pop(-2)  # Remove the check directly behind
 
-        # values 8-15 (surrounding danger)
+        # values 7-13 (surrounding danger)
         changes = [
             (0, -1),
             (1, -1),
@@ -163,6 +175,8 @@ class Environment:
                     head[1] + (change[1] * steps),
                 )
             values.append(steps)
+        values.pop(-4)  # Remove the check directly behind
+
         return values
 
     def calculateNearestApple(self):

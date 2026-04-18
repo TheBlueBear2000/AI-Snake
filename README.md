@@ -6,8 +6,8 @@ This project aims to play a game of snake using an artificially intelligent mode
 | Number | Name | Description |
 | --- | --- | --- |
 | 0-3 | Food Direction | The direction of the nearest piece of food (4 is infront, 5 is behind, 6 is left, 7 is right) |
-| 4-7 | Safety | Directly adjacent objects (8 is infront, 9 is right, 10 is behind, 11 is left) |
-| 8-15 | Range | Distances to collidables in 45 degree increments (12 is forward, then iterativley clockwise) |
+| 4-6 | Safety | Directly adjacent objects (8 is infront, 9 is right, 11 is left) |
+| 7-13 | Range | Distances to collidables in 45 degree increments (12 is forward, then iterativley clockwise, ignoring directly behind as that is always taken) |
 
 ## Output Features
 | Number | Name | Description |
@@ -72,7 +72,8 @@ After this attempt, the model explored more:
 
 ![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic4.png?raw=true)
 
-After some work on tuning parameters and increasing training time, these were the results of several attempts:
+
+At this point I decided to adjust the environment to make the snake longer. Previously the snake started at length 1 and added 1 length per apple, but I decided to change it to start at length 3 and add 2 per apple. I also realised that I did not need the check for range behind the snake, since there will always be more snake behind it.
 
 
 
