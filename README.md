@@ -106,10 +106,12 @@ I knew that I was going to have to fundementally change my approach. After some 
 Having read this, I realised I may be able to use better algorithms for the individual actors and critics, such as PPO (Proximal Policy Optimization) for the actor and DQN (Deep-Q Network) for the critic. I also learnt that there are other hybrid algorithms, such as SAC (Soft Actor-Critic) and DDPG (Deep Deterministic Policy Gradient)
 
 The main actor algorithms I looked at were:
-| PPO | Designed by OpenAI. Stable, easy. Uses a "clipped surrogate objective" that stops the policy learning too much in a single step, which prevents potential over-stepping. It is used alot in RLHF (Reinforcement Learning with Human Feedback), like ChatGPT |
-| TRPO | Came before PPO, ensures stability using a "trust region", using KL-divergance constraints. While more accurate, it is far slower and more complex than PPO |
-| REINFORCE | The "vanilla" policy gradient optimizer, but often unstable (I believe this is what I am using at the moment) |
-| GRPO | A "slimmer" PPO created by DeepSeek, which removes the critic network entirely. It calculates advantage by comparing a response's reward to the mean reward of a "peer group" of responses to the same observation |
+| Name | Full Name | Description |
+| --- | --- | --- |
+| PPO | Proximal Policy Optimization | Designed by OpenAI. Stable, easy. Uses a "clipped surrogate objective" that stops the policy learning too much in a single step, which prevents potential over-stepping. It is used alot in RLHF (Reinforcement Learning with Human Feedback), like ChatGPT |
+| TRPO | Trust Region Policy Optimization | Came before PPO, ensures stability using a "trust region", using KL-divergance constraints. While more accurate, it is far slower and more complex than PPO |
+| REINFORCE | Reinforce | The "vanilla" policy gradient optimizer, but often unstable (I believe this is what I am using at the moment) |
+| GRPO | Group Relative Policy Optimization | A "slimmer" PPO created by DeepSeek, which removes the critic network entirely. It calculates advantage by comparing a response's reward to the mean reward of a "peer group" of responses to the same observation |
 
 Of all of these, PPO seems the most intelligent. TRPO and REINFORCE are slightly outdated, and GRPO seems to require far more training time and/or data than I am able or willing to provide. It would also require some human feedback, which defeats the purpose of this project.
 
