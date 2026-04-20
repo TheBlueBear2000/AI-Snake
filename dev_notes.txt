@@ -1,0 +1,4 @@
+- add reward for dodging obstical (more for dodging wall?)
+- rewrite env in C 
+- Switch structures to np for optimization
+- Implement PPO

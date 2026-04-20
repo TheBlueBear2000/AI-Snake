@@ -75,7 +75,7 @@ class Environment:
             self.snake.pop(0)  # Only remove tail coord if apple not collected
 
         # Nothing
-        return 0, False  # reward, done
+        return -3, False  # reward, done
 
     def placeNewApples(self):
         while len(self.apples) < min(
@@ -108,23 +108,23 @@ class Environment:
     def extractObservation(self):
         values = []
 
-        # values 0-3 (food direction)
+        # values 0 & 1 (food direction)
         head = self.snake[-1]
         nearest_apple = self.calculateNearestApple()
-        above = head[1] - nearest_apple[1] > 0
-        left = head[0] - nearest_apple[0] > 0
+        above = head[1] - nearest_apple[1]
+        left = head[0] - nearest_apple[0]
 
-        # values must be in order: ahead, behind, left, right of head
+        # values must be in order: ahead, to the side
         if self.direction == "up":
-            values += [int(above), int(not above), int(left), int(not left)]
+            values += [above, left]
         elif self.direction == "down":
-            values += [int(not above), int(above), int(not left), int(left)]
+            values += [above * -1, left * -1]
         elif self.direction == "left":
-            values += [int(left), int(not left), int(not above), int(above)]
+            values += [left, above * -1]
         elif self.direction == "right":
-            values += [int(not left), int(left), int(above), int(not above)]
+            values += [left * -1, above]
 
-        # values 4-6 (immediate danger)
+        # values 2-4 (immediate danger)
         changes = [(0, -1), (1, 0), (0, 1), (-1, 0)]
         # Iterates from starting point depending on direction
         for i in list(range(DIRECTIONS.index(self.direction), len(changes))) + list(
@@ -143,7 +143,7 @@ class Environment:
             )
         values.pop(-2)  # Remove the check directly behind
 
-        # values 7-13 (surrounding danger)
+        # values 5-11 (surrounding danger)
         changes = [
             (0, -1),
             (1, -1),

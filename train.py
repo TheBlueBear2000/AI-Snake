@@ -78,6 +78,7 @@ if __name__ == "__main__":
     env = Environment()
     agent = Agent(alpha=1e-5, n_actions=env.n_actions)
     n_games = 1800
+    MAX_TICKS = 10000
 
     figure_file = "plots/actor-critic.png"
 
@@ -95,6 +96,7 @@ if __name__ == "__main__":
         score = 0
 
         # "gameloop"
+        tick = 0
         while not done:
             action = agent.choose_action(observation)
             reward, done = env.doMove(action - 1)  # Action is 0-2, function takes -1-1
@@ -104,6 +106,10 @@ if __name__ == "__main__":
             if not load_checkpoint:
                 agent.learn(observation, reward, observation_, done)
             observation = observation_
+
+            tick += 1
+            if tick >= MAX_TICKS:
+                break
 
         print(f"Game {i} score: {score}")
         score_history.append(score)

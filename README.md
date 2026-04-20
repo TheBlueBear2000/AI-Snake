@@ -79,4 +79,21 @@ Having done this, the performance of the model became much more varied, and ther
 
 ![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic7.png?raw=true)
 
-Out of interest, I then tried switching removing the punishment for time, to see if removing the insentive to end the game early would allow the snake to focus on collecting apples
+Out of interest, I then tried switching removing the punishment for time, to see if removing the insentive to end the game early would allow the snake to focus on collecting apples, but this ended up creating incredibly long games, and I was forced to close the training before it completed.
+
+The best model I got was this one:
+| Reward | Value |
+| --- | --- |
+| Apple | 100 |
+| Moved | -3 |
+| Died by wall | -50 |
+| Died by self | 0 |
+| Victory | 10,000 |
+
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic8.png?raw=true)
+
+
+## 20/04/2026
+
+Having adjusted the reward function to minimal improvement, I decided that different approaches were needed. Firstly, I noticed some redundancy in the observation data, where I was giving 4 values, one for each direction of the food (relative to the head). This data just said if the food was in that direction or not, which meant that if the food was infront of the snake, I both had a value saying that the food is ahead and another saying that it is not behind. I also was not providing information about the actual distance of the apple, which may have been why the critic network was unable to learn that being closer to the food is a higher value state.
+
