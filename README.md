@@ -27,17 +27,17 @@ To train the model, a game is run and rewards are collected at each step. After 
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
 | Apple | +100 | Reward for collecting an apple |
-| Iteration | -1 | Penalty for doing nothing |
+| Iteration | -3 | Penalty for doing nothing |
 | Win | +10,000 | Massive reward for winning game |
 | Loss | 0 | Punishment for losing |
 
 ---
 
-# Dev Log:
+# Dev Log
 ## Intro and overview
 Initially I didn't really know what I was doing. I had done work with imitation modelling and the algorithms around that, but I had never ventured into RL systems. I made a terminal version of snake many years ago when I was still in school and I knew the environment would be quick to set up, so I thought it would be an excellent introductory project into RL. 
 
-After quite abit of research, I found that there were a few different approaches to RL, but that a great one to start with is Actor-Critic. Having attempted to follow a very convoluted Medium article that also promised to explain PPO (not yet necessary to me), I eventually found a YouTube video by @MachineLearningwithPhil that perfectly explained all of the concepts I would need. As per his advice, I switched to TensorFlow as the main library for the project. Although I am very aware that PyTorch is more standard, it was unnecessarily complicated for the project so far, and a simpler environment would also help me to consider the codebase more clearly.
+After quite abit of research, I found that there were a few different approaches to RL, but that a great one to start with is Actor-Critic. Having attempted to follow a very convoluted Medium article that also promised to explain PPO (not yet necessary to me), I eventually found a YouTube video by @MachineLearningwithPhil that perfectly explained all of the concepts I would need. As per his advice, I switched to TensorFlow as the main library for the project. Although I am very aware that PyTorch is more standard, it was unnecessarily complicated for the project so far, and a simpler environment would also help me to consider the codebase and understand the core concepts more clearly.
 
 ## 26/03/2026
 I began by copying what I thought was the simplest solution from another project I had been working with, but which had been generated using Claude (and therefore I did not yet understand). In order to make sure I understood the code as best as possible, I copied each line manually, reading it in it's context. Unfortunately, this did not work very well, and I found myself completely lost. I did however set up a rendering environment for the game, with filler code to test models.
