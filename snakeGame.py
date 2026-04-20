@@ -1,6 +1,7 @@
 from random import randint
 from time import sleep
 from math import sqrt
+from enum import Enum
 
 RENDER_FPS = 2
 DIRECTIONS = ["up", "right", "down", "left"]

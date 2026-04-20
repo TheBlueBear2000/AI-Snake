@@ -2,3 +2,4 @@
 - rewrite env in C 
 - Switch structures to np for optimization
 - Implement PPO
+- replace directions with enums

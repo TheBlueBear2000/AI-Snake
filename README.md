@@ -97,3 +97,24 @@ The best model I got was this one:
 
 Having adjusted the reward function to minimal improvement, I decided that different approaches were needed. Firstly, I noticed some redundancy in the observation data, where I was giving 4 values, one for each direction of the food (relative to the head). This data just said if the food was in that direction or not, which meant that if the food was infront of the snake, I both had a value saying that the food is ahead and another saying that it is not behind. I also was not providing information about the actual distance of the apple, which may have been why the critic network was unable to learn that being closer to the food is a higher value state.
 
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic9.png?raw=true)
+
+As you can see, this did not really improve the model very much. The network learnt to die quickly, and then learnt to die quickly but explore more first, in the hope of getting an apple. There was still no indication that the network was trying to prioritize getting apples and avoiding crashing.
+
+I knew that I was going to have to fundementally change my approach. After some research, I found an old Reddit post that beautifully explained A2C (Advantage Actor-Critic) in it's context as an RL algorithm. The post said that there are two main forms of RL, policy optimization and value optimization. Policy optimization is the process of procedually updating the "policy", which is the network that decides on the next move, based on it's input observations, whilst value optimization works on calculating a more intelligent value function, which is a function that estimates the value/advantage of the current state (also found from the observation), which can then be used to deduce a better policy. The post explained that A2C (and A3C likewise), are simply frameworks that allow both of these processes to be run together intelligently, where the actor represents the policy, and the critic represents the value.
+
+Having read this, I realised I may be able to use better algorithms for the individual actors and critics, such as PPO (Proximal Policy Optimization) for the actor and DQN (Deep-Q Network) for the critic. I also learnt that there are other hybrid algorithms, such as SAC (Soft Actor-Critic) and DDPG (Deep Deterministic Policy Gradient)
+
+The main actor algorithms I looked at were:
+| PPO | Designed by OpenAI. Stable, easy. Uses a "clipped surrogate objective" that stops the policy learning too much in a single step, which prevents potential over-stepping. It is used alot in RLHF (Reinforcement Learning with Human Feedback), like ChatGPT |
+| TRPO | Came before PPO, ensures stability using a "trust region", using KL-divergance constraints. While more accurate, it is far slower and more complex than PPO |
+| REINFORCE | The "vanilla" policy gradient optimizer, but often unstable (I believe this is what I am using at the moment) |
+| GRPO | A "slimmer" PPO created by DeepSeek, which removes the critic network entirely. It calculates advantage by comparing a response's reward to the mean reward of a "peer group" of responses to the same observation |
+
+Of all of these, PPO seems the most intelligent. TRPO and REINFORCE are slightly outdated, and GRPO seems to require far more training time and/or data than I am able or willing to provide. It would also require some human feedback, which defeats the purpose of this project.
+
+For the value optimization, the main algorithm seems to be DQN, with other popular methods simply being variants on it. 
+
+I will start by implementing PPO as the actor, and then will attempt to tune again. After this, I will attempt to implement DQN as the critic.
+
+
