@@ -4,10 +4,16 @@ from math import sqrt
 from enum import Enum
 
 RENDER_FPS = 2
-DIRECTIONS = ["up", "right", "down", "left"]
 MAX_APPLES = 3
 START_LENGTH = 3
 APPLE_LENGTH_BONUS = 2
+
+
+class Directions(Enum):
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
 
 
 class Environment:
@@ -18,14 +24,14 @@ class Environment:
         self.snake_backlog = START_LENGTH - 1
         self.apples = []
         self.placeNewApples()
-        self.direction = "up"
+        self.direction = Directions.UP
 
     def reset(self):
         self.snake = [(self.arena_dims[0] // 2, self.arena_dims[1] // 2)]
         self.snake_backlog = START_LENGTH - 1
         self.apples = []
         self.placeNewApples()
-        self.direction = "up"
+        self.direction = Directions.UP
 
     def doMove(self, move):
         if move > 1 or move < -1:
@@ -37,15 +43,15 @@ class Environment:
             return 10000, True  # reward, done
 
         # moves are -1 = left, 0 = forward, 1 = right
-        self.direction = DIRECTIONS[(DIRECTIONS.index(self.direction) + move) % 4]
+        self.direction = Directions((self.direction + move) % 4)
 
-        if self.direction == "up":
+        if self.direction == Directions.UP:
             new_coordinate = (self.snake[-1][0], self.snake[-1][1] - 1)
-        elif self.direction == "down":
+        elif self.direction == Directions.DOWN:
             new_coordinate = (self.snake[-1][0], self.snake[-1][1] + 1)
-        elif self.direction == "left":
+        elif self.direction == Directions.LEFT:
             new_coordinate = (self.snake[-1][0] - 1, self.snake[-1][1])
-        elif self.direction == "right":
+        elif self.direction == Directions.RIGHT:
             new_coordinate = (self.snake[-1][0] + 1, self.snake[-1][1])
 
         if (
@@ -116,20 +122,20 @@ class Environment:
         left = head[0] - nearest_apple[0]
 
         # values must be in order: ahead, to the side
-        if self.direction == "up":
+        if self.direction == Directions.UP:
             values += [above, left]
-        elif self.direction == "down":
+        elif self.direction == Directions.DOWN:
             values += [above * -1, left * -1]
-        elif self.direction == "left":
+        elif self.direction == Directions.LEFT:
             values += [left, above * -1]
-        elif self.direction == "right":
+        elif self.direction == Directions.RIGHT:
             values += [left * -1, above]
 
         # values 2-4 (immediate danger)
         changes = [(0, -1), (1, 0), (0, 1), (-1, 0)]
         # Iterates from starting point depending on direction
-        for i in list(range(DIRECTIONS.index(self.direction), len(changes))) + list(
-            range(0, DIRECTIONS.index(self.direction))
+        for i in list(range(self.direction.value, len(changes))) + list(
+            range(0, self.direction.value)
         ):
             change = changes[i]
             new_coordinate = (head[0] + change[0], head[1] + change[1])
@@ -156,8 +162,8 @@ class Environment:
             (-1, -1),
         ]
         # Iterates from starting point depending on direction
-        for i in list(range(DIRECTIONS.index(self.direction) * 2, len(changes))) + list(
-            range(0, DIRECTIONS.index(self.direction) * 2)
+        for i in list(range(self.direction.value * 2, len(changes))) + list(
+            range(0, self.direction.value * 2)
         ):
             change = changes[i]
             start = True

@@ -1,18 +1,12 @@
-DIRECTIONS = ["up", "right", "down", "left"]
-changes = [
-    (0, -1),
-    (1, -1),
-    (1, 0),
-    (1, 1),
-    (0, 1),
-    (-1, 1),
-    (-1, 0),
-    (-1, -1),
-]
+from enum import Enum
 
-for direction in DIRECTIONS:
-    print("when going", direction)
-    print(
-        list(range(DIRECTIONS.index(direction) * 2, len(changes)))
-        + list(range(0, DIRECTIONS.index(direction) * 2))
-    )
+
+class Directions(Enum):
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
+
+
+print(Directions.UP)
+print(Directions(Directions.UP.value + 1))

@@ -27,7 +27,7 @@ To train the model, a game is run and rewards are collected at each step. After 
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
 | Apple | +100 | Reward for collecting an apple |
-| Iteration | -3 | Penalty for doing nothing |
+| Iteration | -3 | Penalty for doing nothing (living reward) |
 | Win | +10,000 | Massive reward for winning game |
 | Loss | 0 | Punishment for losing |
 
@@ -103,8 +103,6 @@ As you can see, this did not really improve the model very much. The network lea
 
 I knew that I was going to have to fundementally change my approach. After some research, I found an old Reddit post that beautifully explained A2C (Advantage Actor-Critic) in it's context as an RL algorithm. The post said that there are two main forms of RL, policy optimization and value optimization. Policy optimization is the process of procedually updating the "policy", which is the network that decides on the next move, based on it's input observations, whilst value optimization works on calculating a more intelligent value function, which is a function that estimates the value/advantage of the current state (also found from the observation), which can then be used to deduce a better policy. The post explained that A2C (and A3C likewise), are simply frameworks that allow both of these processes to be run together intelligently, where the actor represents the policy, and the critic represents the value.
 
-Having read this, I realised I may be able to use better algorithms for the individual actors and critics, such as PPO (Proximal Policy Optimization) for the actor and DQN (Deep-Q Network) for the critic. I also learnt that there are other hybrid algorithms, such as SAC (Soft Actor-Critic) and DDPG (Deep Deterministic Policy Gradient)
-
 The main actor algorithms I looked at were:
 | Name | Full Name | Description |
 | --- | --- | --- |
@@ -112,6 +110,8 @@ The main actor algorithms I looked at were:
 | TRPO | Trust Region Policy Optimization | Came before PPO, ensures stability using a "trust region", using KL-divergance constraints. While more accurate, it is far slower and more complex than PPO |
 | REINFORCE | Reinforce | The "vanilla" policy gradient optimizer, but often unstable (I believe this is what I am using at the moment) |
 | GRPO | Group Relative Policy Optimization | A "slimmer" PPO created by DeepSeek, which removes the critic network entirely. It calculates advantage by comparing a response's reward to the mean reward of a "peer group" of responses to the same observation |
+
+(Whilst reading about these, I also learnt that there are other hybrid algorithms, such as A3C (Asynchronos Advantage Actor-Critic), SAC (Soft Actor-Critic) and DDPG (Deep Deterministic Policy Gradient). However, I will be sticking with A2C for simplicity)
 
 Of all of these, PPO seems the most intelligent. TRPO and REINFORCE are slightly outdated, and GRPO seems to require far more training time and/or data than I am able or willing to provide. It would also require some human feedback, which defeats the purpose of this project.
 

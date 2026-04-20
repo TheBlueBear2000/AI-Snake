@@ -9,3 +9,4 @@ venv310-AI-Snake/
 pyvenv.cfg
 .python-version
 .DS_Store
+temp.py
