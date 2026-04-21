@@ -119,4 +119,12 @@ For the value optimization, the main algorithm seems to be DQN, with other popul
 
 I will start by implementing PPO as the actor, and then will attempt to tune again. After this, I will attempt to implement DQN as the critic.
 
+## 21/04/2026
+
+Before I began investigating PPO properly, I had a couple of ideas overnight of how I could encourage the snake to find an apple. Firstly, I could punish the snake more for each step without an apple, so first it would be punished by 1 point, then if it does not consume an apple next, punish it by 1.1, then by 1.2, and so on for each step until it finds an apple. Once an apple is found, the punishment will be reset. This will encourage the snake to find an apple quickly. I could also punish the bot more for being further from any apples, which I could do by some sort of gradient fall-off or by punishing it for moving away from the nearest apple (gradient falloff would be better, as choosing to go for another apple is not necessarily bad, even if it would only be done through guesswork).
+
+Having implemented this, and with minor tuning, I got this output:
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic11.png?raw=true)
+
+Evidently, this is also not very good. The only other thing I could try would be to reduce the layer sizes. Currently I have 2 layers, of size 1024 and 512, but this may be too many. By reducing the sizes of the layers the model will be able to better generalise the problem, and it may find a good solution quicker.
 

@@ -20,11 +20,7 @@ class Environment:
     def __init__(self):
         self.n_actions = 3
         self.arena_dims = (20, 15)
-        self.snake = [(self.arena_dims[0] // 2, self.arena_dims[1] // 2)]
-        self.snake_backlog = START_LENGTH - 1
-        self.apples = []
-        self.placeNewApples()
-        self.direction = Directions.UP
+        self.reset()
 
     def reset(self):
         self.snake = [(self.arena_dims[0] // 2, self.arena_dims[1] // 2)]
@@ -32,6 +28,7 @@ class Environment:
         self.apples = []
         self.placeNewApples()
         self.direction = Directions.UP
+        self.steps_since_apple = -1
 
     def doMove(self, move):
         if move > 1 or move < -1:
@@ -43,7 +40,7 @@ class Environment:
             return 10000, True  # reward, done
 
         # moves are -1 = left, 0 = forward, 1 = right
-        self.direction = Directions((self.direction + move) % 4)
+        self.direction = Directions((self.direction.value + move) % 4)
 
         if self.direction == Directions.UP:
             new_coordinate = (self.snake[-1][0], self.snake[-1][1] - 1)
@@ -73,6 +70,7 @@ class Environment:
             self.apples.pop(self.apples.index(new_coordinate))
             self.placeNewApples()
             self.snake_backlog = APPLE_LENGTH_BONUS - 1
+            self.steps_since_apple = -1
             # Apple
             return 100, False  # reward, done
 
@@ -82,7 +80,16 @@ class Environment:
             self.snake.pop(0)  # Only remove tail coord if apple not collected
 
         # Nothing
-        return -3, False  # reward, done
+        self.steps_since_apple += 1
+        environmental_reward = -3 - (0.5 * self.steps_since_apple)
+        environmental_reward -= self.calculate_apple_proximity_falloff(self.snake[-1])
+        return environmental_reward, False  # reward, done
+
+    def calculate_apple_proximity_falloff(self, head):
+        total = 0
+        for apple in self.apples:
+            total += 0.01 * (((head[0] - apple[0]) ** 2) + ((head[0] - apple[0]) ** 2))
+        return total
 
     def placeNewApples(self):
         while len(self.apples) < min(

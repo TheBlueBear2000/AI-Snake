@@ -1,7 +1,4 @@
 TODO:
-- Add reward for dodging obstical (more for dodging wall?)
-- Rewrite env in C 
-- Switch structures to np for optimization
+- Rewrite env in C
 - Implement PPO
-- Replace directions with enums
-- Look at "priors", model-free and model-based systems
+- Reduce layer sizes to remove decision noise

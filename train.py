@@ -111,7 +111,7 @@ if __name__ == "__main__":
             if tick >= MAX_TICKS:
                 break
 
-        print(f"Game {i} score: {score}")
+        print(f"Game: {i} | Score: {score:.2f} | Iterations: {tick}")
         score_history.append(score)
         avg_score = np.mean(score_history[-50:])
 
