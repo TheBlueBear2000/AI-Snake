@@ -148,4 +148,4 @@ if __name__ == "__main__":
     print(f"Last save at {last_save}")
 
     plot_learning_curve(score_history, score_figure_file, 50, "score")
-    plot_learning_curve(apples_history, apple_figure_file, 10, "apples")
+    plot_learning_curve(apples_history, apple_figure_file, 50, "apples")
