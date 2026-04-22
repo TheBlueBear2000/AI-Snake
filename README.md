@@ -131,13 +131,18 @@ Evidently, this is also not very good. The only other thing I could try would be
 
 ![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_12.png?raw=true)
 
-I still think that this may ultimately be a good approach, but I will need to implement PPO first. Actor-Critic alone is very unstable, and has a tendency to reach a point where it gets exponentially worse, and this is a problem that PPO solves by surrogate clipping.
+I still think that this may ultimately be a good approach, but I will need to implement PPO first. Actor-Critic alone is very unstable, and has a tendency to reach a point where it gets exponentially worse as it overcompensates for bad mistakes by making the opposite mistake instead of finding a middle ground, and this is a problem that PPO solves by surrogate clipping.
 
 ## 22/04/2026
 
-The last thing I thought I'd try is to flip the living reward to be positive rather than negative, to encourage the snake to survive longer. I thought perhaps that encouraging the snake to survive longer might also encourage it to search for apples more.
+Over night I decided that the last thing I thought I'd try is to flip the living reward to be positive rather than negative, to encourage the snake to survive longer. I thought perhaps that encouraging the snake to survive longer might also encourage it to search for apples more.
 
-At this point I also realised that plotting the reward is not a very good measure of performance, since by changing the reward function I would be changing the output of an identical game. Instead, a good measure would be the number of apples collected divided by the game length. Then again I would plot the average of the last 50 games. From now I will plot both
+At this point I also realised that plotting the reward is not a very good measure of performance, since by changing the reward function I would be changing the output of an identical game. Instead, a good measure would be the number of apples collected divided by the game length. Then again I would plot the average of the last 50 games. From now I will plot both graphs and show them together, like below.
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_13.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_13.png?raw=true" width="400">
+
+At this point I was certain, I would only obtain meaningful results by implementing PPO. My research proved that this was more complicated than I had anticipated, as it was not just a case of whacking it in and running it. The recommendations for implementing PPO also included running a given number of steps instead of a single game, so that a model that plays short games would still gather as much data as longer games. This seems like an excellent idea, and I am not sure why I wasn't doing it already, so I will start by implementing this. I will then need to implement the GAE calculation and then the PPO learning loop.
+
+## 23/04/2026
+
 
