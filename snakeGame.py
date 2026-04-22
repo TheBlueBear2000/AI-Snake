@@ -29,8 +29,10 @@ class Environment:
         self.placeNewApples()
         self.direction = Directions.UP
         self.steps_since_apple = -1
+        self.got_apple = False
 
     def doMove(self, move):
+        self.got_apple = False
         if move > 1 or move < -1:
             raise Exception(f"Moves must be a value of -1, 0 or 1, not {move}")
 
@@ -71,6 +73,7 @@ class Environment:
             self.placeNewApples()
             self.snake_backlog = APPLE_LENGTH_BONUS - 1
             self.steps_since_apple = -1
+            self.got_apple = True
             # Apple
             return 100, False  # reward, done
 
@@ -220,7 +223,7 @@ def gameLoop():
         action = agent.choose_action(observation)
         observation = env.extractObservation()
 
-        _, done = env.doMove(action - 1)  # Action is 0-2, function takes -1-1
+        _, done = env.doMove(action - 1)
 
         env.render()
         sleep(1 / RENDER_FPS)

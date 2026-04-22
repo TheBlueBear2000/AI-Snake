@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
+import os
 
 from snakeGame import Environment
 from ActorCritic import ActorCriticNet
@@ -9,13 +10,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_learning_curve(x, scores, figure_file):
-    running_avg = np.zeros(len(scores))
+def plot_learning_curve(values, figure_file, number, name):
+    plt.figure()
+
+    x = [i + 1 for i in range(len(values))]
+
+    running_avg = np.zeros(len(values))
     for i in range(len(running_avg)):
-        running_avg[i] = np.mean(scores[max(0, i - 100) : (i + 1)])
+        running_avg[i] = np.mean(values[max(0, i - number) : (i + 1)])
+
     plt.plot(x, running_avg)
-    plt.title("Running average of previous 50 scores")
+    plt.title(f"Running average of previous {number} {name}")
     plt.savefig(figure_file)
+    plt.close()
 
 
 class Agent:
@@ -80,10 +87,23 @@ if __name__ == "__main__":
     n_games = 1800
     MAX_TICKS = 10000
 
-    figure_file = "plots/actor-critic.png"
+    current_file = 0
+    files = os.listdir("plots/")
+    for file_name in files:
+        file_name = file_name.replace("actor-critic-score_", "")
+        file_name = file_name.replace("actor-critic-apples_", "")
+        file_name = file_name.replace(".png", "")
+        if file_name.isnumeric():
+            current_file = max(current_file, int(file_name))
+
+    print(f"Saving to plot number {current_file}")
+
+    score_figure_file = f"plots/actor-critic-score_{current_file}.png"
+    apple_figure_file = f"plots/actor-critic-apples_{current_file}.png"
 
     best_score = -999999999
     score_history = []
+    apples_history = []
     load_checkpoint = False
 
     if load_checkpoint:
@@ -94,12 +114,15 @@ if __name__ == "__main__":
         observation = env.extractObservation()
         done = False
         score = 0
+        apples = 0
 
         # "gameloop"
         tick = 0
         while not done:
             action = agent.choose_action(observation)
-            reward, done = env.doMove(action - 1)  # Action is 0-2, function takes -1-1
+            reward, done = env.doMove(action - 1)
+
+            apples += int(env.got_apple)
 
             observation_ = env.extractObservation()
             score += reward
@@ -111,7 +134,8 @@ if __name__ == "__main__":
             if tick >= MAX_TICKS:
                 break
 
-        print(f"Game: {i} | Score: {score:.2f} | Iterations: {tick}")
+        print(f"Game: {i} | Score: {score:.2f} | Iterations: {tick} | Apples: {apples}")
+        apples_history.append(apples)
         score_history.append(score)
         avg_score = np.mean(score_history[-50:])
 
@@ -121,7 +145,7 @@ if __name__ == "__main__":
             if not load_checkpoint:
                 agent.save_models()
 
-    x = [i + 1 for i in range(n_games)]
-    plot_learning_curve(x, score_history, figure_file)
-
     print(f"Last save at {last_save}")
+
+    plot_learning_curve(score_history, score_figure_file, 50, "score")
+    plot_learning_curve(apples_history, apple_figure_file, 10, "apples")

@@ -1,4 +1,3 @@
 TODO:
 - Rewrite env in C
 - Implement PPO
-- Reduce layer sizes to remove decision noise

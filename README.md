@@ -54,30 +54,30 @@ I also changed the model size system to provide only 3 actions, and for all obse
 
 The first time I ran it, I forgot to reset the environment at each turn:
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic1.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic1.png?raw=true){width=400px}
 
 Having fixed this, I saw a trending improvement in the model:
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic2.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic2.png?raw=true){width=400px}
 
 This solution simply went forwards into a wall, as it learned that minimising it's time spent alive was a better solution than attempting to find an apple to increase it's score, and it finished every game with a score of -7.
 
 After some parameter adjustment, I got this:
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic3.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic3.png?raw=true){width=400px}
 
 Overall this performed worse, scoring an average of about -9 at the end of each game, but did attempt to explore more, which is good, and as a result had a more varied final score (sometimes positive)
 
 After this attempt, the model explored more:
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic4.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic4.png?raw=true){width=400px}
 
 
 At this point I decided to adjust the environment to make the snake longer. Previously the snake started at length 1 and added 1 length per apple, but I decided to change it to start at length 3 and add 2 per apple. I also realised that I did not need the check for range behind the snake, since there will always be more snake behind it.
 
 Having done this, the performance of the model became much more varied, and there was more range of score. By the end, the score was on average positive, which was excellent, as it meant the model was almost always collecting an apple within a certain number of moves (on average)
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic7.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic7.png?raw=true){width=400px}
 
 Out of interest, I then tried switching removing the punishment for time, to see if removing the insentive to end the game early would allow the snake to focus on collecting apples, but this ended up creating incredibly long games, and I was forced to close the training before it completed.
 
@@ -90,14 +90,14 @@ The best model I got was this one:
 | Died by self | 0 |
 | Victory | 10,000 |
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic8.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic8.png?raw=true){width=400px}
 
 
 ## 20/04/2026
 
 Having adjusted the reward function to minimal improvement, I decided that different approaches were needed. Firstly, I noticed some redundancy in the observation data, where I was giving 4 values, one for each direction of the food (relative to the head). This data just said if the food was in that direction or not, which meant that if the food was infront of the snake, I both had a value saying that the food is ahead and another saying that it is not behind. I also was not providing information about the actual distance of the apple, which may have been why the critic network was unable to learn that being closer to the food is a higher value state.
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic9.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic9.png?raw=true){width=400px}
 
 As you can see, this did not really improve the model very much. The network learnt to die quickly, and then learnt to die quickly but explore more first, in the hope of getting an apple. There was still no indication that the network was trying to prioritize getting apples and avoiding crashing.
 
@@ -125,13 +125,20 @@ Before I began investigating PPO properly, I had a couple of ideas overnight of 
 
 Having implemented this, and with minor tuning, I got this output:
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic11.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic11.png?raw=true){width=400px}
 
 Evidently, this is also not very good. The only other thing I could try would be to reduce the layer sizes. Currently I have 2 layers, of size 1024 and 512, but this may be too many. By reducing the sizes of the layers the model will be able to better generalise the problem, and it may find a good solution quicker. I tried switching to havin 128 and 64 layers respectivly, but this did not help.
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic12.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_12.png?raw=true){width=400px}
 
 I still think that this may ultimately be a good approach, but I will need to implement PPO first. Actor-Critic alone is very unstable, and has a tendency to reach a point where it gets exponentially worse, and this is a problem that PPO solves by surrogate clipping.
 
 ## 22/04/2026
+
+The last thing I thought I'd try is to flip the living reward to be positive rather than negative, to encourage the snake to survive longer. I thought perhaps that encouraging the snake to survive longer might also encourage it to search for apples more.
+
+At this point I also realised that plotting the reward is not a very good measure of performance, since by changing the reward function I would be changing the output of an identical game. Instead, a good measure would be the number of apples collected divided by the game length. Then again I would plot the average of the last 50 games. From now I will plot both
+
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_13.png?raw=true){width=400px}
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_13.png?raw=true){width=400px}
 
