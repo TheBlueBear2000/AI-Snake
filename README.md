@@ -139,6 +139,5 @@ The last thing I thought I'd try is to flip the living reward to be positive rat
 
 At this point I also realised that plotting the reward is not a very good measure of performance, since by changing the reward function I would be changing the output of an identical game. Instead, a good measure would be the number of apples collected divided by the game length. Then again I would plot the average of the last 50 games. From now I will plot both
 
-<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_13.png?raw=true" width="400">
-<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_13.png?raw=true" width="400">
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_13.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_13.png?raw=true" width="400">
 
