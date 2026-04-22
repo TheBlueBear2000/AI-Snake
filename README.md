@@ -6,8 +6,8 @@ This project aims to play a game of snake using an artificially intelligent mode
 | Number | Name | Description |
 | --- | --- | --- |
 | 0-1 | Food Vector | The vector of the nearest piece of food 0 is forward/backward distance, 1 is horizontal distance |
-| 2-4 | Safety | Directly adjacent objects (8 is infront, 9 is right, 11 is left) |
-| 5-11 | Range | Distances to collidables in 45 degree increments (12 is forward, then iterativley clockwise, ignoring directly behind as that is always taken) |
+| 2-4 | Safety | Directly adjacent objects (2 is infront, 3 is right, 4 is left) |
+| 5-11 | Range | Distances to collidables in 45 degree increments (5 is forward, then iterativley clockwise, ignoring directly behind as that is always taken) |
 
 ## Output Features
 | Number | Name | Description |
