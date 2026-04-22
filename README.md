@@ -129,6 +129,9 @@ Having implemented this, and with minor tuning, I got this output:
 
 Evidently, this is also not very good. The only other thing I could try would be to reduce the layer sizes. Currently I have 2 layers, of size 1024 and 512, but this may be too many. By reducing the sizes of the layers the model will be able to better generalise the problem, and it may find a good solution quicker. I tried switching to havin 128 and 64 layers respectivly, but this did not help.
 
-![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic11.png?raw=true)
+![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic12.png?raw=true)
 
 I still think that this may ultimately be a good approach, but I will need to implement PPO first. Actor-Critic alone is very unstable, and has a tendency to reach a point where it gets exponentially worse, and this is a problem that PPO solves by surrogate clipping.
+
+## 22/04/2026
+
