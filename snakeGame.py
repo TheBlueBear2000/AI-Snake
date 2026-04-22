@@ -58,11 +58,11 @@ class Environment:
             or new_coordinate[1] >= self.arena_dims[1]
         ):
             # Died by hitting wall
-            return -50, True  # reward, done
+            return -500, True  # reward, done
 
         if new_coordinate in self.snake:
             # Died by hitting self
-            return 0, True  # reward, done
+            return -400, True  # reward, done
 
         self.snake.append(new_coordinate)
 
@@ -83,6 +83,7 @@ class Environment:
         self.steps_since_apple += 1
         environmental_reward = -3 - (0.5 * self.steps_since_apple)
         environmental_reward -= self.calculate_apple_proximity_falloff(self.snake[-1])
+        environmental_reward = 1
         return environmental_reward, False  # reward, done
 
     def calculate_apple_proximity_falloff(self, head):

@@ -7,8 +7,8 @@ class ActorCriticNet(keras.Model):
     def __init__(
         self,
         n_actions,
-        fc1_dims=1024,
-        fc2_dims=512,
+        fc1_dims=128,  # 1024,
+        fc2_dims=64,  # 512,
         name="actor-critic",
         checkpoint_dir="checkpoints/actor-critic",
     ):
