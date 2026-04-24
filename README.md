@@ -58,7 +58,7 @@ The first time I ran it, I forgot to reset the environment at each turn:
 
 Having fixed this, I saw a trending improvement in the model:
 
-<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic2.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game1.png?raw=true" width="400">
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic2.png?raw=true" width="400"><img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game1.gif?raw=true" width="400">
 
 This solution simply went forwards into a wall, as it learned that minimising it's time spent alive was a better solution than attempting to find an apple to increase it's score, and it finished every game with a score of -7.
 
@@ -90,8 +90,7 @@ The best model I got was this one:
 | Died by self | 0 |
 | Victory | 10,000 |
 
-<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic8.png?raw=true" width="400">
-<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game2.gif?raw=true" width="400">
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic8.png?raw=true" width="400"><img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game2.gif?raw=true" width="400">
 
 
 ## 20/04/2026
@@ -140,7 +139,7 @@ Over night I decided that the last thing I thought I'd try is to flip the living
 
 At this point I also realised that plotting the reward is not a very good measure of performance, since by changing the reward function I would be changing the output of an identical game. Instead, a good measure would be the number of apples collected divided by the game length. Then again I would plot the average of the last 50 games. From now I will plot both graphs and show them together, like below.
 
-<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_13.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_13.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game3.png?raw=true" width="400">
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_13.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_13.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game3.gif?raw=true" width="400">
 
 At this point I was certain, I would only obtain meaningful results by implementing PPO. My research proved that this was more complicated than I had anticipated, as it was not just a case of whacking it in and running it. The recommendations for implementing PPO also included running a given number of steps instead of a single game, so that a model that plays short games would still gather as much data as longer games. This seems like an excellent idea, and I am not sure why I wasn't doing it already, so I will start by implementing this. I will then need to implement the GAE calculation and then the PPO learning loop.
 
