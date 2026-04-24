@@ -91,6 +91,7 @@ The best model I got was this one:
 | Victory | 10,000 |
 
 ![alt text](https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic8.png?raw=true)
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game2.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_13.png?raw=true" width="400">
 
 
 ## 20/04/2026
