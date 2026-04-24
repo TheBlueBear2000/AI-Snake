@@ -84,9 +84,8 @@ class Environment:
 
         # Nothing
         self.steps_since_apple += 1
-        environmental_reward = -3 - (0.5 * self.steps_since_apple)
+        environmental_reward = 1 - (0.1 * self.steps_since_apple)
         environmental_reward -= self.calculate_apple_proximity_falloff(self.snake[-1])
-        environmental_reward = 1
         return environmental_reward, False  # reward, done
 
     def calculate_apple_proximity_falloff(self, head):
@@ -102,8 +101,8 @@ class Environment:
             new_apple = (randint(0, self.arena_dims[0]), randint(0, self.arena_dims[1]))
             while new_apple in self.snake or new_apple in self.apples:
                 new_apple = (
-                    randint(0, self.arena_dims[0]),
-                    randint(0, self.arena_dims[1]),
+                    randint(0, self.arena_dims[0] - 1),
+                    randint(0, self.arena_dims[1] - 1),
                 )
             self.apples.append(new_apple)
 

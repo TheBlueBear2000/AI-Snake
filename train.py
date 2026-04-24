@@ -9,6 +9,10 @@ from ActorCritic import ActorCriticNet
 import numpy as np
 import matplotlib.pyplot as plt
 
+GAME_STEPS = 200
+ITERATIONS = 1800
+PPO_EPOCHS = 15
+
 
 def plot_learning_curve(values, figure_file, number, name):
     plt.figure()
@@ -54,6 +58,13 @@ class Agent:
         print("... Loading Model ...")
         self.actor_critic.load_weights(self.actor_critic.checkpoint_file)
 
+    def get_v_and_log_probs(self, state):
+        state = tf.convert_to_tensor([state], dtype=tf.float32)
+        v, probs = self.actor_critic(state)
+        action_probs = tfp.distributions.Categorical(probs=probs)
+        log_probs = action_probs.log_prob(self.action_space)
+        return v, log_probs
+
     def learn(self, state, reward, state_, done):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
         state_ = tf.convert_to_tensor([state_], dtype=tf.float32)
@@ -84,8 +95,6 @@ if __name__ == "__main__":
     print("Starting training")
     env = Environment()
     agent = Agent(alpha=1e-5, n_actions=env.n_actions)
-    n_games = 1800
-    MAX_TICKS = 10000
 
     current_file = 0
     files = os.listdir("plots/")
@@ -95,7 +104,7 @@ if __name__ == "__main__":
         file_name = file_name.replace(".png", "")
         if file_name.isnumeric():
             current_file = max(current_file, int(file_name))
-
+    current_file += 1
     print(f"Saving to plot number {current_file}")
 
     score_figure_file = f"plots/actor-critic-score_{current_file}.png"
@@ -109,16 +118,24 @@ if __name__ == "__main__":
     if load_checkpoint:
         agent.load_models()
 
-    for i in range(n_games):
+    for i in range(ITERATIONS):
         env.reset()
         observation = env.extractObservation()
-        done = False
         score = 0
         apples = 0
+        deaths = 0
+
+        iteration = {
+            "states": [],
+            "actions": [],
+            "rewards": [],
+            "dones": [],
+            "log_probs": [],
+            "vs": [],
+        }
 
         # "gameloop"
-        tick = 0
-        while not done:
+        for tick in range(GAME_STEPS):
             action = agent.choose_action(observation)
             reward, done = env.doMove(action - 1)
 
@@ -126,15 +143,29 @@ if __name__ == "__main__":
 
             observation_ = env.extractObservation()
             score += reward
+
+            iteration["states"].append(observation)
+            iteration["actions"].append(action)
+            iteration["rewards"].append(reward)
+            iteration["dones"].append(done)
+
+            v, log_probs = agent.get_v_and_log_probs(observation)
+            iteration["log_probs"].append(log_probs)
+            iteration["vs"].append(v)
+
             if not load_checkpoint:
                 agent.learn(observation, reward, observation_, done)
             observation = observation_
 
-            tick += 1
-            if tick >= MAX_TICKS:
-                break
+            if done:
+                deaths += 1
+                env.reset()
 
-        print(f"Game: {i} | Score: {score:.2f} | Iterations: {tick} | Apples: {apples}")
+        iteration["states"].append(observation)
+
+        print(
+            f"Iteration: {i} | Score: {score:.2f} | Deaths: {deaths} | Apples: {apples}"
+        )
         apples_history.append(apples)
         score_history.append(score)
         avg_score = np.mean(score_history[-50:])

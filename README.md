@@ -27,9 +27,10 @@ To train the model, a game is run and rewards are collected at each step. After 
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
 | Apple | +100 | Reward for collecting an apple |
-| Iteration | -3 | Penalty for doing nothing (living reward) |
+| Iteration | -1 - (0.1 x steps since last apple) - (total of 0.01 x squared distance to each apple) | Penalty for doing nothing (living reward) that punishes avoiding apples |
 | Win | +10,000 | Massive reward for winning game |
-| Loss | 0 | Punishment for losing |
+| Died by wall | -500 | Punishment for losing by hitting wall (really should be avoided) |
+| Died by self | -400 | Punishment for losing by hitting self |
 
 ---
 
@@ -143,6 +144,12 @@ At this point I also realised that plotting the reward is not a very good measur
 
 At this point I was certain, I would only obtain meaningful results by implementing PPO. My research proved that this was more complicated than I had anticipated, as it was not just a case of whacking it in and running it. The recommendations for implementing PPO also included running a given number of steps instead of a single game, so that a model that plays short games would still gather as much data as longer games. This seems like an excellent idea, and I am not sure why I wasn't doing it already, so I will start by implementing this. I will then need to implement the GAE calculation and then the PPO learning loop.
 
-## 23/04/2026
+## 24/04/2026
+
+Having implemented set-step iterations of 200 steps (for now), I obtained this data (bare in mind games are now of fixed length so scores are amplified). This also meant that heavy punishments for deaths were more important, so I increased them. The training took a lot longer, but for the first time there seemed to be some strategy to both stay alive and collect apples.
+
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_14.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_14.png?raw=true" width="400">
+
+
 
 
