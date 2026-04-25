@@ -290,7 +290,6 @@ if __name__ == "__main__":
         score_history.append(score)
         avg_score = np.mean(score_history[-50:])
 
-        agent.save_models()
         if avg_score > best_score:
             best_score = avg_score
             last_save = i
