@@ -148,7 +148,7 @@ At this point I was certain, I would only obtain meaningful results by implement
 
 Having implemented set-step iterations of 200 steps (for now), I obtained this data (bare in mind games are now of fixed length so scores are amplified). This also meant that heavy punishments for deaths were more important, so I increased them. The training took a lot longer, but for the first time there seemed to be some strategy to both stay alive and collect apples.
 
-<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_14.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_14.png?raw=true" width="400">
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_14.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_14.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game4.gif?raw=true" width="400">
 
 
 
