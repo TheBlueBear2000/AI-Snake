@@ -219,7 +219,7 @@ def gameLoop():
 
     done = False
     while not done:
-        action = agent.choose_action(observation)
+        action, _, _ = agent.choose_action(observation)
         observation = env.extractObservation()
 
         _, done = env.doMove(action - 1)

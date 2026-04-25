@@ -10,7 +10,7 @@ from ActorCritic import ActorCriticNet
 
 GAME_STEPS = 200
 ITERATIONS = 1800
-PPO_EPOCHS = 15
+PPO_EPOCHS = 5
 
 
 def plot_learning_curve(values, figure_file, number, name):
@@ -100,6 +100,9 @@ class Agent:
 
         # Calculate returns
         returns = np.array(advantages) + np.array(vs[:-1])
+
+        advantages = tf.convert_to_tensor(advantages, dtype=tf.float32)
+        returns = tf.convert_to_tensor(returns, dtype=tf.float32)
 
         return advantages, returns
 
@@ -257,7 +260,7 @@ if __name__ == "__main__":
             iteration["actions"].append(action)
             iteration["rewards"].append(reward)
             iteration["dones"].append(done)
-            iteration["log_probs"].append(log_prob)
+            iteration["log_probs"].append(log_prob[0].numpy())
             iteration["vs"].append(v.numpy()[0, 0])
 
             # if not load_checkpoint:
@@ -287,6 +290,7 @@ if __name__ == "__main__":
         score_history.append(score)
         avg_score = np.mean(score_history[-50:])
 
+        agent.save_models()
         if avg_score > best_score:
             best_score = avg_score
             last_save = i
