@@ -30,8 +30,9 @@ def plot_learning_curve(values, figure_file, number, name):
 
 
 class Agent:
-    def __init__(self, alpha=0.0003, gamma=0.99, n_actions=3):
+    def __init__(self, alpha=0.0003, gamma=0.99, lambd=0.96, n_actions=3):
         self.gamma = gamma
+        self.lambd = lambd
         self.n_actions = n_actions
         self.action = None
         self.action_space = [i for i in range(self.n_actions)]
@@ -64,6 +65,32 @@ class Agent:
         action_probs = tfp.distributions.Categorical(probs=probs)
         log_probs = action_probs.log_prob(self.action_space)
         return v, log_probs
+
+    def compute_GAE_and_returns(self, iteration):
+        rewards = iteration["rewards"]
+        dones = iteration["dones"]
+        vs = iteration["vs"]
+
+        A = 0
+        As = []
+        Rs = []
+        for step_i in reversed(range(len(rewards))):
+            # Calculate temporal difference
+            delta = (
+                rewards[step_i]
+                + (self.gamma * vs[step_i + 1] * (1 - int(dones[step_i])))
+                - vs(step_i)
+            )
+
+            # Calculate advantages (actual GAE)
+            A = delta + (self.gamma * self.lambd * A * (1 - int(dones[step_i])))
+            As.append(A)
+
+            # Calculate return
+            R = A + vs(step_i)
+            Rs.append(R)
+
+        return reversed(As), reversed(Rs)  # Flip back and the end
 
     def learn(self, state, reward, state_, done):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
@@ -162,7 +189,12 @@ if __name__ == "__main__":
                 env.reset()
 
         iteration["states"].append(observation)
+        v, _ = agent.get_v_and_log_probs(observation)
+        iteration["vs"].append(v)
 
+        advantages, returns = compute_GAE_and_returns(iteration)
+
+        # Plotting and benchmarking
         print(
             f"Iteration: {i} | Score: {score:.2f} | Deaths: {deaths} | Apples: {apples}"
         )
