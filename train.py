@@ -2,12 +2,11 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 from snakeGame import Environment
 from ActorCritic import ActorCriticNet
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 GAME_STEPS = 200
 ITERATIONS = 1800
@@ -246,8 +245,6 @@ if __name__ == "__main__":
             action, v, log_prob = agent.choose_action(observation)
             reward, done = env.doMove(action - 1)
 
-            apples += int(env.got_apple)
-
             observation_ = env.extractObservation()
             score += reward
 
@@ -262,6 +259,7 @@ if __name__ == "__main__":
             #    agent.learn(observation, reward, observation_, done)
             observation = observation_
 
+            apples += int(env.got_apple)
             if done:
                 deaths += 1
                 env.reset()

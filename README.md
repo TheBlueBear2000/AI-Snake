@@ -1,5 +1,21 @@
 # AI-Snake
-This project aims to play a game of snake using an artificially intelligent model. The model uses a neural network (outlined below) to play the game, and is improved through RL (Reinforcement Learning), using a reward function also outlined below.
+This project aims to play a game of snake using a neural network. The neural network is trained through RL (Reinforcement Learning) algorithms such as A2C, PPO and DQN. Details of the training (observation structure, reward, etc) are outlined below.
+
+# Installation
+To install and run this project on your own device, you must have python 3.10.x installed (newer versions do not support some tensorflow functions used)
+
+### Import libraries
+To install all necessary libraries with pip, use:
+```pip install tensorflow tensorflow_probability matplotlib numpy```
+
+### Usage
+To train the model, use
+```python train.py```
+
+To run the model visually, use
+```python snakeGame.py```
+
+---
 
 # Neural Network Architecture
 ## Input Features
@@ -21,9 +37,11 @@ There are two layers, of 1024 and then 512 neurons
 A ReLU activation function is used
 
 # Training
-To train the model, a game is run and rewards are collected at each step. After a game, an evaluation is made of each move and a loss value is calculated for both the actor and the critic models
+To train the model, a given number of steps are run and rewards (as well as other data) are collected at each step. After a "game", each move is evaluated based on how it impacted performance throughout the rest of the game. This information is then used to teach the model to both produce better choices (known as improving the actor) and to better evaluate a state (known as improving the critic)
 
 ## Reward Function
+Rewards are allocated at each move according to what happens in that move, with the different effects listed below:
+
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
 | Apple | +100 | Reward for collecting an apple |
@@ -131,7 +149,7 @@ Evidently, this is also not very good. The only other thing I could try would be
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_12.png?raw=true" width="400">
 
-I still think that this may ultimately be a good approach, but I will need to implement PPO first. Actor-Critic alone is very unstable, and has a tendency to reach a point where it gets exponentially worse as it overcompensates for bad mistakes by making the opposite mistake instead of finding a middle ground, and this is a problem that PPO solves by surrogate clipping.
+I still think that this may be a good approach eventually, but I will need to implement PPO first to increase stability and prevent the enormous drop you see at the end. Actor-Critic alone is very unstable, and has a tendency to reach a point where it gets exponentially worse as it overcompensates for bad mistakes by making the opposite mistake instead of finding a middle ground, and this is a problem that PPO solves by surrogate clipping. For now I went back to 1024 and 512 sized layers, and will consider this an informative experiment.
 
 ## 22/04/2026
 
@@ -145,7 +163,7 @@ At this point I was certain, I would only obtain meaningful results by implement
 
 ## 24/04/2026
 
-Having implemented set-step iterations of 200 steps (for now), I obtained this data (bare in mind games are now of fixed length so scores are amplified). This also meant that heavy punishments for deaths were more important, so I increased them. The training took a lot longer, but for the first time there seemed to be some strategy to both stay alive and collect apples.
+Having implemented set-step iterations of 200 steps (for now), I obtained this data (bare in mind games are now of fixed length so scores are amplified). This also meant that heavy punishments for deaths were more important, so I increased them. The training took a lot longer, but for the first time there seemed to be some strategy to both stay alive and collect apples. In fact, this seems to be the first model that actually consistently gets at least one apple per turn, often more, meaning it is not just luck. As you can see, in some iterations it goes beyond 14 (this doesnt account for deaths, the snake may have died several times in this scenario, but it is impressive nonetheless).
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_14.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_14.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game4.gif?raw=true" width="400">
 
@@ -155,4 +173,4 @@ Today I finally decided to sit down and implement PPO properly. After reading se
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_15.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_15.png?raw=true" width="400">
 
-
+I would still like to implement DQN too, but I will first work at tuning PPO, like how I tuned A2C before I added PPO. As you can see, it has quite a way to go.
