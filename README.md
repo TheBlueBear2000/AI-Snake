@@ -151,6 +151,8 @@ Having implemented set-step iterations of 200 steps (for now), I obtained this d
 
 ## 25/04/2026
 
+Today I finally decided to sit down and implement PPO properly. After reading several articles and finding example snippets, I tried implementing GAE and the PPO training function. I spent a lot of time debugging various issues with tensor shapes, and ended up simplifying parts of the original training loop as a result. The first full run after debugging gave me this result:
 
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_15.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_15.png?raw=true" width="400">
 
 
