@@ -30,7 +30,7 @@ def plot_learning_curve(values, figure_file, number, name):
 
 class Agent:
     def __init__(
-        self, alpha=0.0003, gamma=0.99, lambd=0.96, clip_epsilon=0.2, n_actions=3
+        self, n_actions, alpha=0.0003, gamma=0.99, lambd=0.96, clip_epsilon=0.2
     ):
         self.gamma = gamma
         self.lambd = lambd
@@ -44,7 +44,7 @@ class Agent:
         self.actor_critic.compile(optimizer=Adam(learning_rate=alpha))
 
     def choose_action(self, observation):
-        state = tf.convert_to_tensor([observation])
+        state = tf.convert_to_tensor([observation], dtype=tf.float32)
         v, probabilities = self.actor_critic(state)
 
         action_probabilities = tfp.distributions.Categorical(probs=probabilities)
@@ -71,10 +71,11 @@ class Agent:
 
         dist = tfp.distributions.Categorical(probs=probs)
         log_probs = dist.log_prob(actions)
+        entropy = dist.entropy()
 
         values = tf.squeeze(values)
 
-        return values, log_probs
+        return values, log_probs, entropy
 
     def compute_GAE_and_returns(self, iteration):
         rewards = iteration["rewards"]
@@ -82,8 +83,7 @@ class Agent:
         vs = iteration["vs"]
 
         A = 0
-        As = []
-        Rs = []
+        advantages = []
         for step_i in reversed(range(len(rewards))):
             # Calculate temporal difference
             delta = (
@@ -94,44 +94,45 @@ class Agent:
 
             # Calculate advantages (actual GAE)
             A = delta + (self.gamma * self.lambd * A * (1 - int(dones[step_i])))
-            As.append(A)
+            advantages.append(A)
 
-            # Calculate return
-            R = A + vs[step_i]
-            Rs.append(R)
+        advantages = list(reversed(advantages))  # Flip back and the end
 
-        return list(reversed(As)), list(reversed(Rs))  # Flip back and the end
+        # Calculate returns
+        returns = np.array(advantages) + np.array(vs[:-1])
+
+        return advantages, returns
 
     def PPO_update(self, advantages, returns, iteration, mini_batch_size=20):
         # Convert to tensors and then make constant
         advantages = tf.convert_to_tensor(advantages, dtype=tf.float32)
+        advantages = tf.stop_gradient(advantages)
         advantages = (advantages - tf.reduce_mean(advantages)) / (
             tf.math.reduce_std(advantages) + 1e-8
         )
-        advantages = tf.stop_gradient(advantages)
 
         returns = tf.stop_gradient(tf.convert_to_tensor(returns, dtype=tf.float32))
 
         old_log_probs = tf.stop_gradient(
             tf.convert_to_tensor(iteration["log_probs"], dtype=tf.float32)
         )
-
-        # Turn data into set of mini-batches
-        dataset = (
-            tf.data.Dataset.from_tensor_slices(
-                (
-                    iteration["states"][:-1],
-                    iteration["actions"],
-                    old_log_probs,
-                    returns,
-                    advantages,
-                )
-            )
-            .shuffle(len(iteration["rewards"]))
-            .batch(mini_batch_size)
-        )
+        old_log_probs = tf.reshape(old_log_probs, [-1])
 
         for _ in range(PPO_EPOCHS):
+            # Turn data into random set of mini-batches
+            dataset = (
+                tf.data.Dataset.from_tensor_slices(
+                    (
+                        iteration["states"][:-1],
+                        iteration["actions"],
+                        old_log_probs,
+                        returns,
+                        advantages,
+                    )
+                )
+                .shuffle(len(iteration["rewards"]))
+                .batch(mini_batch_size)
+            )
             for (
                 batch_states,
                 batch_actions,
@@ -141,12 +142,13 @@ class Agent:
             ) in dataset:
                 with tf.GradientTape() as tape:
                     # Calculate the values and log probs of this epoch
-                    values, new_log_probs = self.get_v_and_log_probs(
+                    values, new_log_probs, entropy = self.get_v_and_log_probs(
                         batch_states, batch_actions
                     )
                     values = tf.squeeze(values)
 
                     # Calculate PPO ratio
+                    new_log_probs = tf.reshape(new_log_probs, [-1])
                     ratio = tf.exp(new_log_probs - batch_old_log_probs)
 
                     # Apply clipping
@@ -161,9 +163,12 @@ class Agent:
                     )
                     critic_loss = tf.reduce_mean(tf.square(batch_returns - values))
 
-                    total_loss = actor_loss + (
-                        0.5 * critic_loss
-                    )  # - (0.01 * entropy) for when I implement entropy
+                    entropy_loss = tf.reduce_mean(entropy)
+
+                    # Compute total loss
+                    total_loss = (
+                        actor_loss + (0.5 * critic_loss) - (0.03 * entropy_loss)
+                    )
 
                 # Find loss gradient and back-propogate
                 grads = tape.gradient(total_loss, self.actor_critic.trainable_variables)
@@ -200,7 +205,7 @@ class Agent:
 if __name__ == "__main__":
     print("Starting training")
     env = Environment()
-    agent = Agent(alpha=1e-5, n_actions=env.n_actions)
+    agent = Agent(env.n_actions)
 
     current_file = 0
     files = os.listdir("plots/")
@@ -253,7 +258,7 @@ if __name__ == "__main__":
             iteration["rewards"].append(reward)
             iteration["dones"].append(done)
             iteration["log_probs"].append(log_prob)
-            iteration["vs"].append(v)
+            iteration["vs"].append(v.numpy()[0, 0])
 
             # if not load_checkpoint:
             #    agent.learn(observation, reward, observation_, done)
@@ -266,9 +271,9 @@ if __name__ == "__main__":
 
         iteration["states"].append(observation)
         v, _ = agent.actor_critic(
-            tf.convert_to_tensor([observation])
+            tf.convert_to_tensor([observation], dtype=tf.float32)
         )  # evaluate final state
-        iteration["vs"].append(v)
+        iteration["vs"].append(v.numpy()[0, 0])
 
         advantages, returns = agent.compute_GAE_and_returns(iteration)
 

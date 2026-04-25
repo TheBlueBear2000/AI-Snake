@@ -173,4 +173,10 @@ Today I finally decided to sit down and implement PPO properly. After reading se
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_15.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_15.png?raw=true" width="400">
 
-I would still like to implement DQN too, but I will first work at tuning PPO, like how I tuned A2C before I added PPO. As you can see, it has quite a way to go.
+As you can see, the model literally did not improve or learn at all. Infact, after training, the output log told me that the model at iteration 0 was actually the best iteration, which means the model actually only got worse. I was sure this was a bug in my implementation of PPO, probably something silly.
+
+Sidenote: I would still like to implement DQN too, but I will first work at tuning PPO, like how I tuned A2C before I added PPO. As you can see, it has quite a way to go.
+
+After a little debugging and research (and a little AI assistance, I'm not perfect), I re-ran and got this result.
+
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_16.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_16.png?raw=true" width="400">
