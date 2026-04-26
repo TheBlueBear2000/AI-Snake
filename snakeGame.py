@@ -62,7 +62,7 @@ class Environment:
             or new_coordinate in self.snake
         ):
             # Died by hitting wall
-            return -10, True  # reward, done
+            return -100, True  # reward, done
 
         self.snake.append(new_coordinate)
 
