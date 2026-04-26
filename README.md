@@ -180,3 +180,7 @@ Sidenote: I would still like to implement DQN too, but I will first work at tuni
 After a little debugging and research (and a little AI assistance, I'm not perfect), I re-ran and got this result.
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_16.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_16.png?raw=true" width="400">
+
+As you can see, this model also does not improve, but is weirdly consistent, as if it decides every turn not to change. By adjusting the critic and entropy coefficients in my total loss calculation I am able to alternate between 0 deaths and 0 apples (implying just going in a fixed loop and collecting nothing, surviving as long as possible), and 25 deaths and a random but low number of apples, implying instantly crashing into a wall. I think I will need to change the reward function
+
+# 26/04/2026
