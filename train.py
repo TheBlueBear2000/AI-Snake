@@ -8,9 +8,20 @@ import matplotlib.pyplot as plt
 from snakeGame import Environment
 from ActorCritic import ActorCriticNet
 
-GAME_STEPS = 200
-ITERATIONS = 1800
-PPO_EPOCHS = 5
+MIN_STEPS = 200  # If a game ends before an iteration reaches this many steps, a new game will be started
+ITERATIONS = 1800  # Number of iterations that the model trains for
+PPO_EPOCHS = 5  # The number of epochs that PPO trains for
+ALPHA = 0.0003  # Optimizer learning rate - Step size for updating network weights during training
+GAMMA = 0.99  # Discount factor - Determines how much future rewards are valued compared to immediate rewards
+LAMBD = 0.96  # GAE Lambda - Balances bias and variance in advantage estimation using Generalized Advantage Estimation
+EPSILON_CLIP = 0.2  # Clipping range - Controls how much the new policy can deviate from the old one ensuring stable updates
+
+
+ENTROPY_COEFFICIENT = (
+    0.03  # Encourages exploration by penalizing low entropy i.e. overconfident policies
+)
+CRITIC_COEFFICIENT = 0.5  # Weight given to the critic loss in the total objective
+BATCH_SIZE = 20  # Number of samples per update affecting stability and efficiency
 
 
 def plot_learning_curve(values, figure_file, number, name):
@@ -30,7 +41,12 @@ def plot_learning_curve(values, figure_file, number, name):
 
 class Agent:
     def __init__(
-        self, n_actions, alpha=0.0003, gamma=0.99, lambd=0.96, clip_epsilon=0.2
+        self,
+        n_actions,
+        alpha=ALPHA,
+        gamma=GAMMA,
+        lambd=LAMBD,
+        clip_epsilon=EPSILON_CLIP,
     ):
         self.gamma = gamma
         self.lambd = lambd
@@ -115,7 +131,7 @@ class Agent:
 
         return advantages, returns
 
-    def PPO_update(self, advantages, returns, iteration, mini_batch_size=20):
+    def PPO_update(self, advantages, returns, iteration, mini_batch_size=BATCH_SIZE):
         # Convert to tensors and then make constant
         advantages = tf.convert_to_tensor(advantages, dtype=tf.float32)
         advantages = tf.stop_gradient(advantages)
@@ -179,7 +195,9 @@ class Agent:
 
                     # Compute total loss
                     total_loss = (
-                        actor_loss + (0.5 * critic_loss) - (0.03 * entropy_loss)
+                        actor_loss
+                        + (CRITIC_COEFFICIENT * critic_loss)
+                        - (ENTROPY_COEFFICIENT * entropy_loss)
                     )
 
                 # Find loss gradient and back-propogate
@@ -188,37 +206,8 @@ class Agent:
                     zip(grads, self.actor_critic.trainable_variables)
                 )
 
-    def learn(self, state, reward, state_, done):
-        state = tf.convert_to_tensor([state], dtype=tf.float32)
-        state_ = tf.convert_to_tensor([state_], dtype=tf.float32)
-        reward = tf.convert_to_tensor(reward, dtype=tf.float32)
 
-        with tf.GradientTape() as tape:
-            state_value, probabilities = self.actor_critic(state)
-            state_value_, _ = self.actor_critic(state_)
-            state_value = tf.squeeze(state_value)
-            state_value_ = tf.squeeze(state_value_)
-
-            action_probs = tfp.distributions.Categorical(probs=probabilities)
-            log_prob = action_probs.log_prob(self.action)
-
-            delta = reward + self.gamma * state_value_ * (1 - int(done)) - state_value
-            actor_loss = -log_prob * delta
-            critic_loss = delta**2
-
-            total_loss = actor_loss + critic_loss
-
-        gradient = tape.gradient(total_loss, self.actor_critic.trainable_variables)
-        self.actor_critic.optimizer.apply_gradients(
-            zip(gradient, self.actor_critic.trainable_variables)
-        )
-
-
-if __name__ == "__main__":
-    print("Starting training")
-    env = Environment()
-    agent = Agent(env.n_actions)
-
+def get_save_files():
     current_file = 0
     files = os.listdir("plots/")
     for file_name in files:
@@ -233,13 +222,19 @@ if __name__ == "__main__":
     score_figure_file = f"plots/actor-critic-score_{current_file}.png"
     apple_figure_file = f"plots/actor-critic-apples_{current_file}.png"
 
+    return score_figure_file, apple_figure_file
+
+
+if __name__ == "__main__":
+    print("Starting training")
+    env = Environment()
+    agent = Agent(env.n_actions)
+
+    score_figure_file, apple_figure_file = get_save_files()
+
     best_score = -999999999
     score_history = []
     apples_history = []
-    load_checkpoint = False
-
-    if load_checkpoint:
-        agent.load_models()
 
     for i in range(ITERATIONS):
         env.reset()
@@ -247,6 +242,8 @@ if __name__ == "__main__":
         score = 0
         apples = 0
         deaths = 0
+        done = False
+        tick = 0
 
         iteration = {
             "states": [],
@@ -258,7 +255,7 @@ if __name__ == "__main__":
         }
 
         # "gameloop"
-        for tick in range(GAME_STEPS):
+        while tick < MIN_STEPS or not done:
             action, v, log_prob = agent.choose_action(observation)
             reward, done = env.doMove(action - 1)
 
@@ -272,14 +269,14 @@ if __name__ == "__main__":
             iteration["log_probs"].append(log_prob[0].numpy())
             iteration["vs"].append(v.numpy()[0, 0])
 
-            # if not load_checkpoint:
-            #    agent.learn(observation, reward, observation_, done)
             observation = observation_
 
             apples += int(env.got_apple)
             if done:
                 deaths += 1
                 env.reset()
+
+            tick += 1
 
         iteration["states"].append(observation)
         v, _ = agent.actor_critic(
@@ -293,7 +290,7 @@ if __name__ == "__main__":
 
         # Plotting and benchmarking
         print(
-            f"Iteration: {i} | Score: {score:.2f} | Deaths: {deaths} | Apples: {apples}"
+            f"Iteration: {i} | Score: {score:.2f} | Deaths: {deaths} | Apples: {apples} | Steps: {tick}"
         )
         apples_history.append(apples)
         score_history.append(score)
@@ -302,8 +299,7 @@ if __name__ == "__main__":
         if avg_score > best_score:
             best_score = avg_score
             last_save = i
-            if not load_checkpoint:
-                agent.save_models()
+            agent.save_models()
 
     print(f"Last save at {last_save}")
 

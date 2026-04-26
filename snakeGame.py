@@ -62,7 +62,7 @@ class Environment:
             or new_coordinate in self.snake
         ):
             # Died by hitting wall
-            return -1, True  # reward, done
+            return -10, True  # reward, done
 
         self.snake.append(new_coordinate)
 
@@ -209,27 +209,24 @@ class Environment:
         return nearest
 
 
-def gameLoop():
+if __name__ == "__main__":
+    from train import Agent
+
     env = Environment()
-    agent = Agent(alpha=1e-5, n_actions=env.n_actions)
+    agent = Agent(env.n_actions)
+
     # Do dummy observation to demonstrate shape of modle to tf before loading
     observation = env.extractObservation()
     agent.choose_action(observation)
-
     agent.load_models()
 
     done = False
     while not done:
+        env.render()
+
         action, _, _ = agent.choose_action(observation)
         observation = env.extractObservation()
 
         _, done = env.doMove(action - 1)
 
-        env.render()
         sleep(1 / RENDER_FPS)
-
-
-if __name__ == "__main__":
-    from train import Agent
-
-    gameLoop()
