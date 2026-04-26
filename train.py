@@ -47,11 +47,20 @@ class Agent:
         state = tf.convert_to_tensor([observation], dtype=tf.float32)
         v, probabilities = self.actor_critic(state)
 
-        action_probabilities = tfp.distributions.Categorical(probs=probabilities)
-        action = action_probabilities.sample()
-        self.action = action
+        # Prevent crashes from invalid sampling (has happened before)
+        try:
+            action_probabilities = tfp.distributions.Categorical(probs=probabilities)
+            action = action_probabilities.sample()
+            self.action = action
 
-        log_prob = action_probabilities.log_prob(action)
+            log_prob = action_probabilities.log_prob(action)
+
+        except Exception as e:
+            print("!! Distribution error:", e)
+            action = tf.constant([np.random.randint(0, 3)])
+            self.action = action
+
+            log_prob = tf.constant([0.0])
 
         return action.numpy()[0], v, log_prob
 

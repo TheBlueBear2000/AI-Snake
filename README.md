@@ -198,9 +198,9 @@ And I want to change it to:
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
 | Apple | +10 | Reward for collecting apple |
-| Got closer | +0.1 | Rewards getting closer to apple |
+| Got closer | +0.1 | Reward getting closer to apple |
 | Got further | -0.15 | Slight punishment discourages wandering |
-| Died | -1 | Small death punishment, to enrourage exploration |
+| Died | -1 | Small death punishment, to encourage exploration |
 | Win | +10,000 | Still the best outcome |
 
 I think that this new function will be a better balance of rewards and is also much simpler. My over-complicated living reward in the previous version could become incredibly cruel if the snake did not get an apple for a long time, which may have been why it learned to die immediately or learnt to survive as long as it could (both were about as bad). Whilst doing this, I also noticed a pretty awful bug with my living reward calculation code, which definately impacted it's effectiveness, but oh well.
@@ -211,4 +211,4 @@ Having changed the function, here were the new results:
 
 As you can see, not only did the model learn this time, it also learned incredibly quickly. I think that my error in living reward calculation probably effected it, but this reward function is far simpler and far more effective.
 
-Currently the model runs for 200 steps per iteration. This is good for learning early on, but now that the model can learn fairly quickly, I want to teach it to deal with later games and to survive for as long as possible. In order to do this, I will change the running method to a combination of step-wise and game-wise training. I will run 200 steps, resetting if the snake dies, and then after the 200 steps are finished, I will keep running until the game ends. This means that early on I can run many short games in a single step, but later I will be able to run a long games to teach the model later game concepts.
+Currently the model runs for 200 steps per iteration. This is good for learning early on, but now that the model can learn fairly quickly, I want to teach it to deal with later games and to survive for as long as possible. In order to do this, I will change the running method to a combination of step-wise and game-wise training. I will run 200 steps, resetting if the snake dies, and then after the 200 steps are finished, I will keep running until the game ends. This means that early on I can run many short games in a single step, but later I will be able to run a long games to teach the model later game concepts. I will also increase the punishment for dying to encourage longer games
