@@ -30,6 +30,7 @@ class Environment:
         self.direction = Directions.UP
         self.steps_since_apple = -1
         self.got_apple = False
+        self.last_dist = 10000
 
     def doMove(self, move):
         self.got_apple = False
@@ -38,7 +39,7 @@ class Environment:
 
         if len(self.snake) == self.arena_dims[0] * self.arena_dims[1]:
             # Won
-            print("Won game!!")
+            print("!! Won game !!")
             return 10000, True  # reward, done
 
         # moves are -1 = left, 0 = forward, 1 = right
@@ -58,13 +59,10 @@ class Environment:
             or new_coordinate[0] >= self.arena_dims[0]
             or new_coordinate[1] < 0
             or new_coordinate[1] >= self.arena_dims[1]
+            or new_coordinate in self.snake
         ):
             # Died by hitting wall
-            return -500, True  # reward, done
-
-        if new_coordinate in self.snake:
-            # Died by hitting self
-            return -400, True  # reward, done
+            return -1, True  # reward, done
 
         self.snake.append(new_coordinate)
 
@@ -75,24 +73,27 @@ class Environment:
             self.steps_since_apple = -1
             self.got_apple = True
             # Apple
-            return 100, False  # reward, done
+            return 10, False  # reward, done
 
         if self.snake_backlog > 0:
             self.snake_backlog -= 1
         else:
             self.snake.pop(0)  # Only remove tail coord if apple not collected
 
-        # Nothing
-        self.steps_since_apple += 1
-        environmental_reward = 1 - (0.1 * self.steps_since_apple)
-        environmental_reward -= self.calculate_apple_proximity_falloff(self.snake[-1])
-        return environmental_reward, False  # reward, done
+        # Living reward
+        head = self.snake[-1]
+        nearest_apple = self.calculateNearestApple()
 
-    def calculate_apple_proximity_falloff(self, head):
-        total = 0
-        for apple in self.apples:
-            total += 0.01 * (((head[0] - apple[0]) ** 2) + ((head[0] - apple[0]) ** 2))
-        return total
+        current_dist = ((head[0] - nearest_apple[0]) ** 2) + (
+            (head[1] - nearest_apple[1]) ** 2
+        )
+        if current_dist < self.last_dist:
+            living_reward = 0.1
+        else:
+            living_reward = -0.15
+        self.last_dist = current_dist
+
+        return living_reward, False  # reward, done
 
     def placeNewApples(self):
         while len(self.apples) < min(

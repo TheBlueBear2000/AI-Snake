@@ -44,11 +44,11 @@ Rewards are allocated at each move according to what happens in that move, with 
 
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
-| Apple | +100 | Reward for collecting an apple |
-| Iteration | -1 - (0.1 x steps since last apple) - (total of 0.01 x squared distance to each apple) | Penalty for doing nothing (living reward) that punishes avoiding apples |
-| Win | +10,000 | Massive reward for winning game |
-| Died by wall | -500 | Punishment for losing by hitting wall (really should be avoided) |
-| Died by self | -400 | Punishment for losing by hitting self |
+| Apple | +10 | Reward for collecting apple |
+| Got closer | +0.1 | Rewards getting closer to apple |
+| Got further | -0.15 | Slight punishment discourages wandering |
+| Died | -1 | Small death punishment, to enrourage exploration |
+| Win | +10,000 | Still the best outcome |
 
 ---
 
@@ -181,6 +181,34 @@ After a little debugging and research (and a little AI assistance, I'm not perfe
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_16.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_16.png?raw=true" width="400">
 
-As you can see, this model also does not improve, but is weirdly consistent, as if it decides every turn not to change. By adjusting the critic and entropy coefficients in my total loss calculation I am able to alternate between 0 deaths and 0 apples (implying just going in a fixed loop and collecting nothing, surviving as long as possible), and 25 deaths and a random but low number of apples, implying instantly crashing into a wall. I think I will need to change the reward function
+As you can see, this model also does not improve, but it is weirdly consistent, as if it decides every turn not to change. By adjusting the critic and entropy coefficients in my total loss calculation I am able to alternate between 0 deaths and 0 apples (implying just going in a fixed loop and collecting nothing, surviving as long as possible), and 25 deaths and a random but low number of apples, implying instantly crashing into a wall. I think I will need to change the reward function
 
 # 26/04/2026
+
+I have decided to change the reward function. Currently it is:
+| Name | Gain/Loss (+/-) | Description |
+| --- | --- | --- |
+| Apple | +100 | Reward for collecting an apple |
+| Iteration | -1 - (0.1 x steps since last apple) - (total of 0.01 x squared distance to each apple) | Penalty for doing nothing (living reward) that punishes avoiding apples |
+| Win | +10,000 | Massive reward for winning game |
+| Died by wall | -500 | Punishment for losing by hitting wall (really should be avoided) |
+| Died by self | -400 | Punishment for losing by hitting self |
+
+And I want to change it to:
+| Name | Gain/Loss (+/-) | Description |
+| --- | --- | --- |
+| Apple | +10 | Reward for collecting apple |
+| Got closer | +0.1 | Rewards getting closer to apple |
+| Got further | -0.15 | Slight punishment discourages wandering |
+| Died | -1 | Small death punishment, to enrourage exploration |
+| Win | +10,000 | Still the best outcome |
+
+I think that this new function will be a better balance of rewards and is also much simpler. My over-complicated living reward in the previous version could become incredibly cruel if the snake did not get an apple for a long time, which may have been why it learned to die immediately or learnt to survive as long as it could (both were about as bad). Whilst doing this, I also noticed a pretty awful bug with my living reward calculation code, which definately impacted it's effectiveness, but oh well.
+
+Having changed the function, here were the new results:
+
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_17.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_17.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/game5.gif?raw=true" width="400">
+
+As you can see, not only did the model learn this time, it also learned incredibly quickly. I think that my error in living reward calculation probably effected it, but this reward function is far simpler and far more effective.
+
+Currently the model runs for 200 steps per iteration. This is good for learning early on, but now that the model can learn fairly quickly, I want to teach it to deal with later games and to survive for as long as possible. In order to do this, I will change the running method to a combination of step-wise and game-wise training. I will run 200 steps, resetting if the snake dies, and then after the 200 steps are finished, I will keep running until the game ends. This means that early on I can run many short games in a single step, but later I will be able to run a long games to teach the model later game concepts.
