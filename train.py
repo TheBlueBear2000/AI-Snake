@@ -9,6 +9,9 @@ from snakeGame import Environment
 from ActorCritic import ActorCriticNet
 
 MIN_STEPS = 200  # If a game ends before an iteration reaches this many steps, a new game will be started
+MAX_STEPS = 10000  # The maximum number of steps that an iteration can go through, to prevent infinite loops
+MIN_ITERATIONS = 400  # Graphs are only drawn if learning surpasses this many iterations
+RUN_INDEFINATE = False  # If true, there will be unlimited iterations, to allow for long term training
 ITERATIONS = 1800  # Number of iterations that the model trains for
 PPO_EPOCHS = 5  # The number of epochs that PPO trains for
 ALPHA = 0.0003  # Optimizer learning rate - Step size for updating network weights during training
@@ -236,72 +239,83 @@ if __name__ == "__main__":
     score_history = []
     apples_history = []
 
-    for i in range(ITERATIONS):
-        env.reset()
-        observation = env.extractObservation()
-        score = 0
-        apples = 0
-        deaths = 0
-        done = False
-        tick = 0
+    i = 0
+    try:
+        while RUN_INDEFINATE or i < ITERATIONS:
+            env.reset()
+            observation = env.extractObservation()
+            score = 0
+            apples = 0
+            deaths = 0
+            done = False
+            tick = 0
 
-        iteration = {
-            "states": [],
-            "actions": [],
-            "rewards": [],
-            "dones": [],
-            "log_probs": [],
-            "vs": [],
-        }
+            iteration = {
+                "states": [],
+                "actions": [],
+                "rewards": [],
+                "dones": [],
+                "log_probs": [],
+                "vs": [],
+            }
 
-        # "gameloop"
-        while tick < MIN_STEPS or not done:
-            action, v, log_prob = agent.choose_action(observation)
-            reward, done = env.doMove(action - 1)
+            # "gameloop"
+            while (tick < MIN_STEPS or not done) and tick < MAX_STEPS:
+                action, v, log_prob = agent.choose_action(observation)
+                reward, done = env.doMove(action - 1)
 
-            observation_ = env.extractObservation()
-            score += reward
+                observation_ = env.extractObservation()
+                score += reward
+
+                iteration["states"].append(observation)
+                iteration["actions"].append(action)
+                iteration["rewards"].append(reward)
+                iteration["dones"].append(done)
+                iteration["log_probs"].append(log_prob[0].numpy())
+                iteration["vs"].append(v.numpy()[0, 0])
+
+                observation = observation_
+
+                apples += int(env.got_apple)
+                if done:
+                    deaths += 1
+                    env.reset()
+
+                tick += 1
 
             iteration["states"].append(observation)
-            iteration["actions"].append(action)
-            iteration["rewards"].append(reward)
-            iteration["dones"].append(done)
-            iteration["log_probs"].append(log_prob[0].numpy())
+            v, _ = agent.actor_critic(
+                tf.convert_to_tensor([observation], dtype=tf.float32)
+            )  # evaluate final state
             iteration["vs"].append(v.numpy()[0, 0])
 
-            observation = observation_
+            advantages, returns = agent.compute_GAE_and_returns(iteration)
 
-            apples += int(env.got_apple)
-            if done:
-                deaths += 1
-                env.reset()
+            agent.PPO_update(advantages, returns, iteration)
 
-            tick += 1
+            # Plotting and benchmarking
+            print(
+                f"Iteration: {i} | Score: {score:.2f} | Deaths: {deaths} | Apples: {apples} | Steps: {tick}"
+            )
+            apples_history.append(apples)
+            score_history.append(score)
+            avg_score = np.mean(score_history[-50:])
 
-        iteration["states"].append(observation)
-        v, _ = agent.actor_critic(
-            tf.convert_to_tensor([observation], dtype=tf.float32)
-        )  # evaluate final state
-        iteration["vs"].append(v.numpy()[0, 0])
+            if avg_score > best_score:
+                best_score = avg_score
+                last_save = i
+                agent.save_models()
 
-        advantages, returns = agent.compute_GAE_and_returns(iteration)
+            i += 1
+    except KeyboardInterrupt:
+        print("User ended training by keyboard interupt")
 
-        agent.PPO_update(advantages, returns, iteration)
-
-        # Plotting and benchmarking
-        print(
-            f"Iteration: {i} | Score: {score:.2f} | Deaths: {deaths} | Apples: {apples} | Steps: {tick}"
-        )
-        apples_history.append(apples)
-        score_history.append(score)
-        avg_score = np.mean(score_history[-50:])
-
-        if avg_score > best_score:
-            best_score = avg_score
-            last_save = i
-            agent.save_models()
-
+    # Post training processing
     print(f"Last save at {last_save}")
 
-    plot_learning_curve(score_history, score_figure_file, 50, "score")
-    plot_learning_curve(apples_history, apple_figure_file, 50, "apples")
+    # Only save plots where model has learned for at least a given number of iterations
+    # Otherwise the training was likely ended early due to error
+    if i > MIN_ITERATIONS:
+        print("... Saving Graphs ...")
+        plot_learning_curve(score_history, score_figure_file, 50, "score")
+        plot_learning_curve(apples_history, apple_figure_file, 50, "apples")

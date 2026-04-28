@@ -100,13 +100,13 @@ Having done this, the performance of the model became much more varied, and ther
 Out of interest, I then tried switching removing the punishment for time, to see if removing the insentive to end the game early would allow the snake to focus on collecting apples, but this ended up creating incredibly long games, and I was forced to close the training before it completed.
 
 The best model I got was this one:
-| Reward | Value |
-| --- | --- |
-| Apple | 100 |
-| Moved | -3 |
-| Died by wall | -50 |
-| Died by self | 0 |
-| Victory | 10,000 |
+| Reward | Gain/Loss (+/-) | Description |
+| --- | --- | --- |
+| Apple | 100 | The reward for getting an apple |
+| Moved | -3 | Slight punishment for doing nothing (living reward) |
+| Died by wall | -50 | Punishment for dying by wall |
+| Died by self | 0 | Lesser punishment for dying by self |
+| Victory | 10,000 | Massive reward for winning |
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic8.png?raw=true" width="400"><img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game2.gif?raw=true" width="400">
 

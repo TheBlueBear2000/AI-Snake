@@ -1,3 +1,4 @@
 TODO:
 - Rewrite env in C
 - Implement DQN
+- Mirror data before GAE to double and balance learning
