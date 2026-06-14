@@ -6,14 +6,20 @@ To install and run this project on your own device, you must have python 3.10.x 
 
 ### Import libraries
 To install all necessary libraries with pip, use:
-```pip install tensorflow tensorflow_probability matplotlib numpy```
+```bash
+pip install tensorflow tensorflow_probability matplotlib numpy
+```
 
 ### Usage
 To train the model, use
-```python train.py```
+```bash
+python train.py
+```
 
 To run the model visually, use
-```python snakeGame.py```
+```bash
+python snakeGame.py
+```
 
 ---
 
@@ -183,7 +189,7 @@ After a little debugging and research (and a little AI assistance, I'm not perfe
 
 As you can see, this model also does not improve, but it is weirdly consistent, as if it decides every turn not to change. By adjusting the critic and entropy coefficients in my total loss calculation I am able to alternate between 0 deaths and 0 apples (implying just going in a fixed loop and collecting nothing, surviving as long as possible), and 25 deaths and a random but low number of apples, implying instantly crashing into a wall. I think I will need to change the reward function
 
-# 26/04/2026
+## 26/04/2026
 
 I have decided to change the reward function. Currently it is:
 | Name | Gain/Loss (+/-) | Description |
@@ -216,3 +222,8 @@ Currently the model runs for 200 steps per iteration. This is good for learning 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_18.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_18.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/assets/game5.gif?raw=true" width="400">
 
 As you can see, this model did perform slightly better, but it has the same sort of stalling issue, where it learns quickly at first, and then it's performance slows, almost logarithmically. I think that this boundary may be to do with the reward function, where at a certain point the snake realises it's better to die after a few apples so it can restart fresh and get new apples more easily, so I am going to have a go at further increasing the death punishment. 
+
+## Break - Exams
+Unfortunately at this point in the project my exams and pressing deadlines prevented me from persuing it with my full energy, so the project was placed on the back-burner until these were completed. After this break my drive to complete this project had depleted, largely due to a new idea, using recurrent reinforcement learning neural networks to play chess. However, before I begin that project, I will try to get a version of this project working, which will potentially include implementing DQN, as mentioned earlier. I would like, at the very least, a model that does not immediately die, and even if it is not highly intelligent, it should do basic things such as avoid dying and aim for apples that are near enough.
+
+##
