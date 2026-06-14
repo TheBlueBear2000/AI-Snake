@@ -76,7 +76,7 @@ class Agent:
 
         except Exception as e:
             print("!! Distribution error:", e)
-            action = tf.constant([np.random.randint(0, 3)])
+            action = tf.constant([np.random.randint(0, self.n_actions)])
             self.action = action
 
             log_prob = tf.constant([0.0])
@@ -262,7 +262,7 @@ if __name__ == "__main__":
             # "gameloop"
             while (tick < MIN_STEPS or not done) and tick < MAX_STEPS:
                 action, v, log_prob = agent.choose_action(observation)
-                reward, done = env.doMove(action - 1)
+                reward, done = env.doMove(action)
 
                 observation_ = env.extractObservation()
                 score += reward
@@ -290,6 +290,13 @@ if __name__ == "__main__":
             iteration["vs"].append(v.numpy()[0, 0])
 
             advantages, returns = agent.compute_GAE_and_returns(iteration)
+
+            print(
+                "actions min/max:",
+                np.min(iteration["actions"]),
+                np.max(iteration["actions"]),
+            )
+            print("unique:", np.unique(iteration["actions"]))
 
             agent.PPO_update(advantages, returns, iteration)
 

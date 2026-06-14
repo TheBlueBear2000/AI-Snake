@@ -19,7 +19,7 @@ class Directions(Enum):
 class Environment:
     def __init__(self):
         self.n_actions = 3
-        self.arena_dims = (20, 15)
+        self.arena_dims = (20, 20)
         self.reset()
 
     def reset(self):
@@ -33,6 +33,8 @@ class Environment:
         self.last_dist = 10000
 
     def doMove(self, move):
+        move -= 1
+        self.steps_since_apple += 1
         self.got_apple = False
         if move > 1 or move < -1:
             raise Exception(f"Moves must be a value of -1, 0 or 1, not {move}")
@@ -40,7 +42,7 @@ class Environment:
         if len(self.snake) == self.arena_dims[0] * self.arena_dims[1]:
             # Won
             print("!! Won game !!")
-            return 10000, True  # reward, done
+            return 500, True  # reward, done
 
         # moves are -1 = left, 0 = forward, 1 = right
         self.direction = Directions((self.direction.value + move) % 4)
@@ -81,17 +83,12 @@ class Environment:
             self.snake.pop(0)  # Only remove tail coord if apple not collected
 
         # Living reward
-        head = self.snake[-1]
-        nearest_apple = self.calculateNearestApple()
 
-        current_dist = ((head[0] - nearest_apple[0]) ** 2) + (
-            (head[1] - nearest_apple[1]) ** 2
+        living_reward = 3 - (
+            self.steps_since_apple
+            * 0.5
+            * (1 - (len(self.snake) / (self.arena_dims[0] * self.arena_dims[1])))
         )
-        if current_dist < self.last_dist:
-            living_reward = 0.1
-        else:
-            living_reward = -0.15
-        self.last_dist = current_dist
 
         return living_reward, False  # reward, done
 
@@ -195,6 +192,31 @@ class Environment:
             values.append(steps)
         values.pop(-4)  # Remove the check directly behind
 
+        # value 12 (body/board ratio)
+        values.append(len(self.snake) / (self.arena_dims[0] * self.arena_dims[1]))
+
+        # values 13-14 (tail relative coordinates)
+        values.append(self.snake[0][0] - head[0])
+        values.append(self.snake[0][1] - head[1])
+
+        # values 15-136
+        for loc_y in range(-5, 6):
+            for loc_x in range(-5, 6):
+                coordinate = (head[0] + loc_x, head[1] + loc_y)
+                if coordinate in self.apples:
+                    values.append(0)
+                elif coordinate in self.snake:
+                    values.append(2)
+                elif (
+                    coordinate[0] < 0
+                    or coordinate[0] > self.arena_dims[0]
+                    or coordinate[1] < 0
+                    or coordinate[1] > self.arena_dims[1]
+                ):
+                    values.append(3)
+                else:
+                    values.append(1)
+
         return values
 
     def calculateNearestApple(self):
@@ -227,6 +249,6 @@ if __name__ == "__main__":
         action, _, _ = agent.choose_action(observation)
         observation = env.extractObservation()
 
-        _, done = env.doMove(action - 1)
+        _, done = env.doMove(action)
 
         sleep(1 / RENDER_FPS)

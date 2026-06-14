@@ -30,6 +30,9 @@ python snakeGame.py
 | 0-1 | Food Vector | The vector of the nearest piece of food 0 is forward/backward distance, 1 is horizontal distance |
 | 2-4 | Safety | Directly adjacent objects (2 is infront, 3 is right, 4 is left) |
 | 5-11 | Range | Distances to collidables in 45 degree increments (5 is forward, then iterativley clockwise, ignoring directly behind as that is always taken) |
+| 12 | Completion | The ratio derived by doing snake-length/board-size, to score the lateness of the game |
+| 13-14 | Tail | Relative coordinates of the tail to the head |
+| 15-136 | Board Image | A flattened 11x11 square of the board centered around the head (will be replaced with CNN) |
 
 ## Output Features
 | Number | Name | Description |
@@ -51,10 +54,9 @@ Rewards are allocated at each move according to what happens in that move, with 
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
 | Apple | +10 | Reward for collecting apple |
-| Got closer | +0.1 | Rewards getting closer to apple |
-| Got further | -0.15 | Slight punishment discourages wandering |
-| Died | -10 | Small death punishment, to enrourage exploration |
-| Win | +10,000 | Still the best outcome |
+| None | +3-(steps since apple * 0.5 * (1 - snake-length/board-size)) | Punishes waiting for an apple in the early game, but less in the late game |
+| Died | -50 | Small death punishment, to enrourage exploration |
+| Win | +500 | Still the best outcome |
 
 ---
 
@@ -226,4 +228,12 @@ As you can see, this model did perform slightly better, but it has the same sort
 ## Break - Exams
 Unfortunately at this point in the project my exams and pressing deadlines prevented me from persuing it with my full energy, so the project was placed on the back-burner until these were completed. After this break my drive to complete this project had depleted, largely due to a new idea, using recurrent reinforcement learning neural networks to play chess. However, before I begin that project, I will try to get a version of this project working, which will potentially include implementing DQN, as mentioned earlier. I would like, at the very least, a model that does not immediately die, and even if it is not highly intelligent, it should do basic things such as avoid dying and aim for apples that are near enough.
 
-##
+## 14/06/2026
+After some research on implementing DQN, I discovered that DQN is not designed to work with A2C, unlike PPO. While DQN may be better suited to the problem, I would like to get a working version of the PPO/A2C implementation first. I may return at a later date to create a DQN implementation as well.
+
+My next step will therefore be to refine what I already have, building a better observation function and a better reward function. To start with, I would like to improve the observation function, since this is currently quite unexplored. I would like to try implementing a CNN (Convolutional Neural Network), but first I will use a more simplified implementation, flattening out a smaller window of the board centered on the snake's head. I will make an 11x11 square around the head and add the (11x11=) 121 inputs to the observation.
+
+TO DO:
+- Tail relative coordinates
+- Body length / board size ratio
+- Board state (switch board to 20x20)
