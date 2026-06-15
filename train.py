@@ -66,6 +66,9 @@ class Agent:
         state = tf.convert_to_tensor([observation], dtype=tf.float32)
         v, probabilities = self.actor_critic(state)
 
+        # print("probabilities shape:", probabilities.shape)
+        # print("probabilities:", probabilities.numpy())
+
         # Prevent crashes from invalid sampling (has happened before)
         try:
             action_probabilities = tfp.distributions.Categorical(probs=probabilities)
@@ -98,6 +101,12 @@ class Agent:
         values, probs = self.actor_critic(states)
 
         dist = tfp.distributions.Categorical(probs=probs)
+
+        # print("actions shape:", actions.shape)
+        # print("actions unique:", tf.unique(tf.reshape(actions, [-1]))[0].numpy())
+        # print("actions max:", tf.reduce_max(actions).numpy())
+        # print("probs shape:", probs.shape)
+
         log_probs = dist.log_prob(actions)
         entropy = dist.entropy()
 
