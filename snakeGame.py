@@ -84,11 +84,15 @@ class Environment:
 
         # Living reward
 
-        living_reward = 3 - (
+        living_reward = 1 - (
             self.steps_since_apple
-            * 0.5
+            * 0.05
             * (1 - (len(self.snake) / (self.arena_dims[0] * self.arena_dims[1])))
         )
+
+        living_reward = max(living_reward, -2)
+
+        living_reward = 0
 
         return living_reward, False  # reward, done
 

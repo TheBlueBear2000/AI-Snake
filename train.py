@@ -21,7 +21,7 @@ EPSILON_CLIP = 0.2  # Clipping range - Controls how much the new policy can devi
 
 
 ENTROPY_COEFFICIENT = (
-    0.03  # Encourages exploration by penalizing low entropy i.e. overconfident policies
+    0.04  # Encourages exploration by penalizing low entropy i.e. overconfident policies
 )
 CRITIC_COEFFICIENT = 0.5  # Weight given to the critic loss in the total objective
 BATCH_SIZE = 20  # Number of samples per update affecting stability and efficiency
@@ -66,8 +66,7 @@ class Agent:
         state = tf.convert_to_tensor([observation], dtype=tf.float32)
         v, probabilities = self.actor_critic(state)
 
-        # print("probabilities shape:", probabilities.shape)
-        # print("probabilities:", probabilities.numpy())
+        probabilities = tf.squeeze(probabilities, axis=0)
 
         # Prevent crashes from invalid sampling (has happened before)
         try:
@@ -84,7 +83,7 @@ class Agent:
 
             log_prob = tf.constant([0.0])
 
-        return action.numpy()[0], v, log_prob
+        return action.numpy(), v, log_prob
 
     def save_models(self):
         print("... Saving Model ...")
@@ -99,14 +98,9 @@ class Agent:
         actions = tf.convert_to_tensor(actions, dtype=tf.int32)
 
         values, probs = self.actor_critic(states)
+        probs = tf.clip_by_value(probs, 1e-8, 1.0)
 
         dist = tfp.distributions.Categorical(probs=probs)
-
-        # print("actions shape:", actions.shape)
-        # print("actions unique:", tf.unique(tf.reshape(actions, [-1]))[0].numpy())
-        # print("actions max:", tf.reduce_max(actions).numpy())
-        # print("probs shape:", probs.shape)
-
         log_probs = dist.log_prob(actions)
         entropy = dist.entropy()
 
@@ -280,7 +274,7 @@ if __name__ == "__main__":
                 iteration["actions"].append(action)
                 iteration["rewards"].append(reward)
                 iteration["dones"].append(done)
-                iteration["log_probs"].append(log_prob[0].numpy())
+                iteration["log_probs"].append(log_prob.numpy())
                 iteration["vs"].append(v.numpy()[0, 0])
 
                 observation = observation_
@@ -300,11 +294,6 @@ if __name__ == "__main__":
 
             advantages, returns = agent.compute_GAE_and_returns(iteration)
 
-            print(
-                "actions min/max:",
-                np.min(iteration["actions"]),
-                np.max(iteration["actions"]),
-            )
             print("unique:", np.unique(iteration["actions"]))
 
             agent.PPO_update(advantages, returns, iteration)
