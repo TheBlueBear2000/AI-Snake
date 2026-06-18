@@ -63,8 +63,12 @@ class Agent:
         self.actor_critic.compile(optimizer=Adam(learning_rate=alpha))
 
     def choose_action(self, observation):
-        state = tf.convert_to_tensor([observation], dtype=tf.float32)
-        v, probabilities = self.actor_critic(state)
+        v, probabilities = self.actor_critic(
+            (
+                tf.convert_to_tensor(observation[0], dtype=tf.float32)[None, :],
+                tf.convert_to_tensor(observation[1], dtype=tf.float32)[None, ...],
+            )
+        )
 
         probabilities = tf.squeeze(probabilities, axis=0)
         probabilities = tf.clip_by_value(probabilities, 1e-8, 1.0)
@@ -96,10 +100,13 @@ class Agent:
         self.actor_critic.load_weights(self.actor_critic.checkpoint_file)
 
     def get_v_and_log_probs(self, states, actions):
-        states = tf.cast(states, tf.float32)
-        actions = tf.convert_to_tensor(actions, dtype=tf.int32)
+        meta = tf.stack([s[0] for s in states])
+        board = tf.stack([s[1] for s in states])
 
-        values, probs = self.actor_critic(states)
+        meta = tf.cast(meta, tf.float32)
+        board = tf.cast(board, tf.float32)
+
+        values, probs = self.actor_critic((meta, board))
         probs = tf.clip_by_value(probs, 1e-8, 1.0)
 
         dist = tfp.distributions.Categorical(probs=probs)
@@ -149,6 +156,10 @@ class Agent:
 
         returns = tf.stop_gradient(tf.convert_to_tensor(returns, dtype=tf.float32))
 
+        states = iteration["states"]
+        metas = np.array([s[0] for s in states])
+        boards = np.array([s[1] for s in states])
+
         old_log_probs = tf.stop_gradient(
             tf.convert_to_tensor(iteration["log_probs"], dtype=tf.float32)
         )
@@ -159,7 +170,8 @@ class Agent:
             dataset = (
                 tf.data.Dataset.from_tensor_slices(
                     (
-                        iteration["states"][:-1],
+                        metas,
+                        boards,
                         iteration["actions"],
                         old_log_probs,
                         returns,
@@ -170,7 +182,8 @@ class Agent:
                 .batch(mini_batch_size)
             )
             for (
-                batch_states,
+                batch_metas,
+                batch_boards,
                 batch_actions,
                 batch_old_log_probs,
                 batch_returns,
@@ -179,7 +192,7 @@ class Agent:
                 with tf.GradientTape() as tape:
                     # Calculate the values and log probs of this epoch
                     values, new_log_probs, entropy = self.get_v_and_log_probs(
-                        batch_states, batch_actions
+                        (batch_metas, batch_boards), batch_actions
                     )
                     values = tf.squeeze(values)
 
@@ -273,10 +286,10 @@ if __name__ == "__main__":
                 score += reward
 
                 iteration["states"].append(observation)
-                iteration["actions"].append(action)
+                iteration["actions"].append(int(action))
                 iteration["rewards"].append(reward)
                 iteration["dones"].append(done)
-                iteration["log_probs"].append(log_prob.numpy())
+                iteration["log_probs"].append(float(log_prob.numpy()))
                 iteration["vs"].append(v.numpy()[0, 0])
 
                 observation = observation_
@@ -290,7 +303,10 @@ if __name__ == "__main__":
 
             iteration["states"].append(observation)
             v, _ = agent.actor_critic(
-                tf.convert_to_tensor([observation], dtype=tf.float32)
+                (
+                    tf.convert_to_tensor(observation[0], dtype=tf.float32)[None, :],
+                    tf.convert_to_tensor(observation[1], dtype=tf.float32)[None, ...],
+                )
             )  # evaluate final state
             iteration["vs"].append(v.numpy()[0, 0])
 

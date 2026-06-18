@@ -234,9 +234,11 @@ After some research on implementing DQN, I discovered that DQN is not designed t
 My next step will therefore be to refine what I already have, building a better observation function and a better reward function. To start with, I would like to improve the observation function, since this is currently quite unexplored. I would like to try implementing a CNN (Convolutional Neural Network), but first I will use a more simplified implementation, flattening out a smaller window of the board centered on the snake's head. I will make an 11x11 square around the head and add the (11x11=) 121 inputs to the observation. I will also add more information, such as the snake size : board size ratio (as a score of completeness) and the tail location of the snake.
 
 ## 18/06/2026
-Having implemented this I got equally bad results. I also tried updating the reward function, focusing on the living reward. I started by making it a bounded and scaled inversion of the time since the last apple, relative to the stage of the game (more punishment early, less later, since pathfinding is harder later in the game), but this did not work. 
+Having implemented this I got equally bad results. I also tried updating the reward function, focusing on the living reward. I started by making it a bounded and scaled inversion of the time since the last apple, relative to the stage of the game (more punishment early, less later, since pathfinding is harder later in the game), but as you can see, this did not work at all.
+
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_19.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_19.png?raw=true" width="400">
 
 I then tried a scaled difference in the old distance to the nearest apple vs the new distance to the nearest apple. This worked far better. Next I would like to try implementing a CNN properly, but this will require some restructuring of my `ActorCritic.py` core model implementation.
+
 
 

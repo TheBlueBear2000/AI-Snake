@@ -204,25 +204,32 @@ class Environment:
         values.append(self.snake[0][0] - head[0])
         values.append(self.snake[0][1] - head[1])
 
-        # values 15-136
-        for loc_y in range(-5, 6):
-            for loc_x in range(-5, 6):
+        # board
+        camera_dimensions = (11, 11)
+        board = []
+        for loc_y in range(
+            -1 * (camera_dimensions[1] // 2), 1 + (camera_dimensions[1] // 2)
+        ):
+            board.append([])
+            for loc_x in range(
+                -1 * (camera_dimensions[0] // 2), 1 + (camera_dimensions[0] // 2)
+            ):
                 coordinate = (head[0] + loc_x, head[1] + loc_y)
                 if coordinate in self.apples:
-                    values.append(0)
+                    board[loc_y].append((1, 0, 0, 0))
                 elif coordinate in self.snake:
-                    values.append(2)
+                    board[loc_y].append((0, 0, 1, 0))
                 elif (
                     coordinate[0] < 0
                     or coordinate[0] > self.arena_dims[0]
                     or coordinate[1] < 0
                     or coordinate[1] > self.arena_dims[1]
                 ):
-                    values.append(3)
+                    board[loc_y].append((0, 0, 0, 1))
                 else:
-                    values.append(1)
+                    board[loc_y].append((0, 1, 0, 0))
 
-        return values
+        return (values, board)
 
     def calculateNearestApple(self):
         head = self.snake[-1]
