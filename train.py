@@ -67,8 +67,10 @@ class Agent:
         v, probabilities = self.actor_critic(state)
 
         probabilities = tf.squeeze(probabilities, axis=0)
+        probabilities = tf.clip_by_value(probabilities, 1e-8, 1.0)
+        probabilities = probabilities / tf.reduce_sum(probabilities)  # renormalize
 
-        # Prevent crashes from invalid sampling (has happened before)
+        # Prevent crashes from invalid sampling
         try:
             action_probabilities = tfp.distributions.Categorical(probs=probabilities)
             action = action_probabilities.sample()
@@ -262,7 +264,7 @@ if __name__ == "__main__":
                 "vs": [],
             }
 
-            # "gameloop"
+            # Training Loop
             while (tick < MIN_STEPS or not done) and tick < MAX_STEPS:
                 action, v, log_prob = agent.choose_action(observation)
                 reward, done = env.doMove(action)

@@ -26,26 +26,25 @@ class Environment:
         self.snake = [(self.arena_dims[0] // 2, self.arena_dims[1] // 2)]
         self.snake_backlog = START_LENGTH - 1
         self.apples = []
+        self.old_apple_dist = None
         self.placeNewApples()
         self.direction = Directions.UP
         self.steps_since_apple = -1
         self.got_apple = False
-        self.last_dist = 10000
 
     def doMove(self, move):
-        move -= 1
         self.steps_since_apple += 1
         self.got_apple = False
-        if move > 1 or move < -1:
-            raise Exception(f"Moves must be a value of -1, 0 or 1, not {move}")
+        if move > 2 or move < 0:
+            raise Exception(f"Moves must be a value of 0, 1 or 2, not {move}")
 
         if len(self.snake) == self.arena_dims[0] * self.arena_dims[1]:
             # Won
             print("!! Won game !!")
             return 500, True  # reward, done
 
-        # moves are -1 = left, 0 = forward, 1 = right
-        self.direction = Directions((self.direction.value + move) % 4)
+        # moves are 0 = left, 1 = forward, 2 = right
+        self.direction = Directions((self.direction.value + move - 1) % 4)
 
         if self.direction == Directions.UP:
             new_coordinate = (self.snake[-1][0], self.snake[-1][1] - 1)
@@ -84,15 +83,17 @@ class Environment:
 
         # Living reward
 
-        living_reward = 1 - (
-            self.steps_since_apple
-            * 0.05
-            * (1 - (len(self.snake) / (self.arena_dims[0] * self.arena_dims[1])))
+        nearest_apple = self.calculateNearestApple()
+        new_apple_dist = sqrt(
+            ((nearest_apple[0] - self.snake[-1][0]) ** 2)
+            + ((nearest_apple[1] - self.snake[-1][1]) ** 2)
         )
+        if self.old_apple_dist == None:
+            self.old_apple_dist = new_apple_dist
 
-        living_reward = max(living_reward, -2)
+        living_reward = 0.1 * (self.old_apple_dist - new_apple_dist)
 
-        living_reward = 0
+        self.old_apple_dist = new_apple_dist
 
         return living_reward, False  # reward, done
 
