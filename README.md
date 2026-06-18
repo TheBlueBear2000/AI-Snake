@@ -231,9 +231,12 @@ Unfortunately at this point in the project my exams and pressing deadlines preve
 ## 14/06/2026
 After some research on implementing DQN, I discovered that DQN is not designed to work with A2C, unlike PPO. While DQN may be better suited to the problem, I would like to get a working version of the PPO/A2C implementation first. I may return at a later date to create a DQN implementation as well.
 
-My next step will therefore be to refine what I already have, building a better observation function and a better reward function. To start with, I would like to improve the observation function, since this is currently quite unexplored. I would like to try implementing a CNN (Convolutional Neural Network), but first I will use a more simplified implementation, flattening out a smaller window of the board centered on the snake's head. I will make an 11x11 square around the head and add the (11x11=) 121 inputs to the observation.
+My next step will therefore be to refine what I already have, building a better observation function and a better reward function. To start with, I would like to improve the observation function, since this is currently quite unexplored. I would like to try implementing a CNN (Convolutional Neural Network), but first I will use a more simplified implementation, flattening out a smaller window of the board centered on the snake's head. I will make an 11x11 square around the head and add the (11x11=) 121 inputs to the observation. I will also add more information, such as the snake size : board size ratio (as a score of completeness) and the tail location of the snake.
 
-TO DO:
-- Tail relative coordinates
-- Body length / board size ratio
-- Board state (switch board to 20x20)
+## 18/06/2026
+Having implemented this I got equally bad results. I also tried updating the reward function, focusing on the living reward. I started by making it a bounded and scaled inversion of the time since the last apple, relative to the stage of the game (more punishment early, less later, since pathfinding is harder later in the game), but this did not work. 
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_19.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_19.png?raw=true" width="400">
+
+I then tried a scaled difference in the old distance to the nearest apple vs the new distance to the nearest apple. This worked far better. Next I would like to try implementing a CNN properly, but this will require some restructuring of my `ActorCritic.py` core model implementation.
+
+
