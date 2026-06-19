@@ -54,7 +54,7 @@ Rewards are allocated at each move according to what happens in that move, with 
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
 | Apple | +10 | Reward for collecting apple |
-| None | +3-(steps since apple * 0.5 * (1 - snake-length/board-size)) | Punishes waiting for an apple in the early game, but less in the late game |
+| Living | +0.1 x diff | 0.1 x the difference between the previous and current distance to the nearest apple |
 | Died | -50 | Small death punishment, to enrourage exploration |
 | Win | +500 | Still the best outcome |
 
@@ -238,7 +238,11 @@ Having implemented this I got equally bad results. I also tried updating the rew
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_19.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_19.png?raw=true" width="400">
 
-I then tried a scaled difference in the old distance to the nearest apple vs the new distance to the nearest apple. This worked far better. Next I would like to try implementing a CNN properly, but this will require some restructuring of my `ActorCritic.py` core model implementation.
+I then tried a scaled difference in the old distance to the nearest apple vs the new distance to the nearest apple. This worked far better. 
 
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_20.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_20.png?raw=true" width="400">
 
+Next I would like to try implementing a CNN properly, but this will require some restructuring of my `ActorCritic.py` core model implementation.
 
+## 19/06/2026
+Having written an implementation of the CNN last night whilst the previous iteration was training, I tested it this morning.

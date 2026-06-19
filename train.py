@@ -312,13 +312,13 @@ if __name__ == "__main__":
 
             advantages, returns = agent.compute_GAE_and_returns(iteration)
 
-            print("unique:", np.unique(iteration["actions"]))
+            # print("unique:", np.unique(iteration["actions"]))
 
             agent.PPO_update(advantages, returns, iteration)
 
             # Plotting and benchmarking
             print(
-                f"Iteration: {i} | Score: {score:.2f} | Deaths: {deaths} | Apples: {apples} | Steps: {tick}"
+                f"Iteration: {i} | Score: {score:.2f} | Deaths: {deaths} | Apples: {apples} | Steps: {tick} | Actions Used: {np.unique(iteration["actions"])}"
             )
             apples_history.append(apples)
             score_history.append(score)
