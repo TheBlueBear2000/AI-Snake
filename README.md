@@ -1,5 +1,5 @@
 # AI-Snake
-This project aims to play a game of snake using a neural network. The neural network is trained through RL (Reinforcement Learning) algorithms such as A2C, PPO and DQN. Details of the training (observation structure, reward, etc) are outlined below.
+This project aims to play a game of snake using a neural network. The neural network uses convolution and LSTM recursion to analyse the board and track changes over time, and is trained through the RL (Reinforcement Learning) algorithms A2C and PPO. Details of the training (observation structure, reward, etc) are outlined below.
 
 # Installation
 To install and run this project on your own device, you must have python 3.10.x installed (newer versions do not support some tensorflow functions used)
@@ -33,7 +33,7 @@ python snakeGame.py
 | 3-4 | Tail | Relative coordinates of the tail to the head |
 
 ### Board
-The board is an 11x11x4 square centered on the snake's head, with 0/1 indicators in each cell describing whether a given feature is there. This is processed by the CNN section of the network. The features are listed below:
+The board is an 11x11x4 square centered on the snake's head, with 0/1 indicators in each cell describing whether a given feature is there. This is processed by the CNN section of the network. The channel features are listed below:
 | Number | Name | Description |
 | --- | --- | --- |
 | 0 | Apple | There is an apple |
@@ -76,8 +76,8 @@ Rewards are allocated at each move according to what happens in that move, with 
 | Name | Gain/Loss (+/-) | Description |
 | --- | --- | --- |
 | Apple | +10 | Reward for collecting apple |
-| Living | +0.1 x diff | 0.1 x the difference between the previous and current distance to the nearest apple |
-| Died | -50 | Small death punishment, to enrourage exploration |
+| Living | +0.5 x diff | 0.1 x the difference between the previous and current distance to the nearest apple |
+| Died | -15 | Small death punishment, to enrourage exploration |
 | Win | +500 | Still the best outcome |
 
 ---
@@ -256,7 +256,7 @@ After some research on implementing DQN, I discovered that DQN is not designed t
 My next step will therefore be to refine what I already have, building a better observation function and a better reward function. To start with, I would like to improve the observation function, since this is currently quite unexplored. I would like to try implementing a CNN (Convolutional Neural Network), but first I will use a more simplified implementation, flattening out a smaller window of the board centered on the snake's head. I will make an 11x11 square around the head and add the (11x11=) 121 inputs to the observation. I will also add more information, such as the snake size : board size ratio (as a score of completeness) and the tail location of the snake.
 
 ## 18/06/2026
-Having implemented this I got equally bad results. I also tried updating the reward function, focusing on the living reward. I started by making it a bounded and scaled inversion of the time since the last apple, relative to the stage of the game (more punishment early, less later, since pathfinding is harder later in the game), but as you can see, this did not work at all.
+Having implemented this I got equally bad results. I also tried updating the reward function, focusing on the living reward. I started by making it a bounded and scaled inversion of the time since the last apple, relative to the stage of the game (more punishment early, less later, since pathfinding is harder later in the game), but as you can see, this did not work at all. The policy collapsed completely very early on, and it never recovered.
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_19.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_19.png?raw=true" width="400">
 
@@ -273,4 +273,6 @@ Once I was finished debugging, I trained again and got these results:
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_21.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_21.png?raw=true" width="400">
 
-As you can see, these are also okay, but by no means very good. At this point I am still using the 11x11 window centered on the snake, and I believe that this may not be optimal. It may be better instead to simply provide the map as it is.
+As you can see, these are also okay, but by no means very good. This is frustrating, since before the break the snake was operating fairly well, and now that seemed challenging to recover, but with the new network structure, any recovery would hopefully be far improved. I went through and re-tweaked the reward function, and then in my research discovered that many effective snake networks use a memory system. I had never worked with memory in NNs before, so I was intrigued to try it.
+
+My research quickly led me to learning about recurrent neural networks (RNNs), but also about their weaknesses, such as the vanishing and exploding gradient problems. Apparently, the standard algorithms are LSTM and GRU, and since LSTM was more widely documented, I decided that this was the implementation I would try.

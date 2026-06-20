@@ -1,7 +1,7 @@
 import os
 import tensorflow as tf
 import tensorflow.keras as keras
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Concatenate
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Concatenate, LSTM
 
 
 class ActorCriticNet(keras.Model):
@@ -30,6 +30,7 @@ class ActorCriticNet(keras.Model):
         # Combined trunk
         self.fc1 = Dense(256, activation="relu")
         self.fc2 = Dense(128, activation="relu")
+        self.lstm = LSTM(128, return_sequences=False)
 
         # Heads
         self.v = Dense(1, activation=None)
@@ -37,23 +38,37 @@ class ActorCriticNet(keras.Model):
 
     def call(self, meta, board):
 
-        # CNN branch
-        x = self.conv1(board)
+        # board: (batch, time, H, W, C)
+        # meta : (batch, time, features)
+
+        B = tf.shape(board)[0]
+        T = tf.shape(board)[1]
+
+        # Merge batch and time so CNN sees ordinary images
+        x = tf.reshape(board, (-1, board.shape[2], board.shape[3], board.shape[4]))
+
+        # CNN
+        x = self.conv1(x)
         x = self.conv2(x)
         x = self.flatten(x)
 
-        # MLP branch
-        m = self.fc_meta1(meta)
+        # Metadata
+        m = tf.reshape(meta, (-1, meta.shape[2]))
+        m = self.fc_meta1(m)
         m = self.fc_meta2(m)
 
-        # Merge
-        combined = Concatenate()([x, m])
+        # Combined Trunk
+        combined = tf.concat([x, m], axis=-1)
+        combined = self.fc1(combined)
 
-        # Shared trunk
-        value = self.fc1(combined)
-        value = self.fc2(value)
+        # Restore time dimension
+        combined = tf.reshape(combined, (B, T, -1))
 
-        v = self.v(value)
-        probabilities = self.probabilities(value)
+        hidden = self.lstm(combined)
 
-        return v, probabilities
+        hidden = self.fc2(hidden)
+
+        value = self.v(hidden)
+        probs = self.probabilities(hidden)
+
+        return value, probs

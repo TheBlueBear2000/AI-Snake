@@ -62,10 +62,19 @@ class Agent:
 
         self.actor_critic.compile(optimizer=Adam(learning_rate=alpha))
 
+        self.meta_buffer = deque(maxlen=8)
+        self.board_buffer = deque(maxlen=8)
+
     def choose_action(self, observation):
+        self.meta_buffer.append(observation[0])
+        self.board_buffer.append(observation[1])
+
+        meta_seq = np.array(self.meta_buffer)[None, ...]
+        board_seq = np.array(self.board_buffer)[None, ...]
+
         v, probabilities = self.actor_critic(
-            tf.convert_to_tensor(observation[0], dtype=tf.float32)[None, :],  # Metas
-            tf.convert_to_tensor(observation[1], dtype=tf.float32)[None, ...],  # Boards
+            tf.convert_to_tensor(meta_seq, dtype=tf.float32),
+            tf.convert_to_tensor(board_seq, dtype=tf.float32),
         )
 
         probabilities = tf.squeeze(probabilities, axis=0)
@@ -96,6 +105,27 @@ class Agent:
     def load_models(self):
         print("... Loading Model ...")
         self.actor_critic.load_weights(self.actor_critic.checkpoint_file)
+
+    def build_sequences(self, states, stack_size=8):
+        metas, boards = [], []
+
+        for i in range(len(states)):
+            m_seq = []
+            b_seq = []
+
+            for j in range(i - stack_size + 1, i + 1):
+                if j < 0:
+                    # pad with first observation
+                    m_seq.append(states[0][0])
+                    b_seq.append(states[0][1])
+                else:
+                    m_seq.append(states[j][0])
+                    b_seq.append(states[j][1])
+
+            metas.append(np.array(m_seq))
+            boards.append(np.array(b_seq))
+
+        return np.array(metas), np.array(boards)
 
     def get_v_and_log_probs(self, meta, board, actions):
         # States here is a single tuple of arrays, rather than standard states form
@@ -152,8 +182,7 @@ class Agent:
 
         returns = tf.stop_gradient(tf.convert_to_tensor(returns, dtype=tf.float32))
 
-        metas = np.array([s[0] for s in iteration["states"]])
-        boards = np.array([s[1] for s in iteration["states"]])
+        metas, boards = build_sequences(iteration["states"])
 
         old_log_probs = tf.stop_gradient(
             tf.convert_to_tensor(iteration["log_probs"], dtype=tf.float32)
