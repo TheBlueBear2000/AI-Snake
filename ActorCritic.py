@@ -35,8 +35,7 @@ class ActorCriticNet(keras.Model):
         self.v = Dense(1, activation=None)
         self.probabilities = Dense(n_actions, activation="softmax")
 
-    def call(self, observation):
-        meta, board = observation
+    def call(self, meta, board):
 
         # CNN branch
         x = self.conv1(board)

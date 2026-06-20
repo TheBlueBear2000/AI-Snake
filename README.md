@@ -244,5 +244,6 @@ I then tried a scaled difference in the old distance to the nearest apple vs the
 
 Next I would like to try implementing a CNN properly, but this will require some restructuring of my `ActorCritic.py` core model implementation.
 
-## 19/06/2026
-Having written an implementation of the CNN last night whilst the previous iteration was training, I tested it this morning.
+## 20/06/2026
+After the previous version finished training, I began to debug the CNN implementation. It turned out that implementing CNN was far more challenging than I had anticipated, and required vastly restructuring my project. I feel that I understand CNNs in theory, but in order to understand them in more detail, I may implement one into my MNIST classifier after this project is finished.
+

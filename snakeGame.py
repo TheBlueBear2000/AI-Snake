@@ -207,27 +207,29 @@ class Environment:
         # board
         camera_dimensions = (11, 11)
         board = []
+        y_track = -1
         for loc_y in range(
             -1 * (camera_dimensions[1] // 2), 1 + (camera_dimensions[1] // 2)
         ):
             board.append([])
+            y_track += 1
             for loc_x in range(
                 -1 * (camera_dimensions[0] // 2), 1 + (camera_dimensions[0] // 2)
             ):
                 coordinate = (head[0] + loc_x, head[1] + loc_y)
                 if coordinate in self.apples:
-                    board[loc_y].append((1, 0, 0, 0))
+                    board[y_track].append((1, 0, 0, 0))
                 elif coordinate in self.snake:
-                    board[loc_y].append((0, 0, 1, 0))
+                    board[y_track].append((0, 0, 1, 0))
                 elif (
                     coordinate[0] < 0
                     or coordinate[0] > self.arena_dims[0]
                     or coordinate[1] < 0
                     or coordinate[1] > self.arena_dims[1]
                 ):
-                    board[loc_y].append((0, 0, 0, 1))
+                    board[y_track].append((0, 0, 0, 1))
                 else:
-                    board[loc_y].append((0, 1, 0, 0))
+                    board[y_track].append((0, 1, 0, 0))
 
         return (values, board)
 
