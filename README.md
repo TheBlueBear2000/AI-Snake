@@ -258,12 +258,17 @@ Having implemented this I got equally bad results. I also tried updating the rew
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_19.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_19.png?raw=true" width="400">
 
-I then tried a scaled difference in the old distance to the nearest apple vs the new distance to the nearest apple. This worked far better. 
+I then tried a scaled difference in the old distance to the nearest apple vs the new distance to the nearest apple. This worked better, but still not well, with the resultant score hovering around -10. No policy collapse, but no visible learning either. I think the issue is to do with the large flattened board image that is included with the data.
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_20.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_20.png?raw=true" width="400">
 
-Next I would like to try implementing a CNN properly, but this will require some restructuring of my `ActorCritic.py` core model implementation.
+Next I would like to try implementing a CNN properly, but this will require some restructuring of my `ActorCritic.py` core model implementation, as well as the way it is called in my training system.
 
 ## 20/06/2026
 After the previous version finished training, I began to debug the CNN implementation. It turned out that implementing CNN was far more challenging than I had anticipated, and required vastly restructuring my project. I feel that I understand CNNs in theory, but in order to understand them in more detail, I may implement one into my MNIST classifier after this project is finished.
 
+Once I was finished debugging, I trained again and got these results:
+
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_21.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_21.png?raw=true" width="400">
+
+As you can see, these are also okay, but by no means very good. At this point I am still using the 11x11 window centered on the snake, and I believe that this may not be optimal. It may be better instead to simply provide the map as it is.
