@@ -63,7 +63,7 @@ class Environment:
             or new_coordinate in self.snake
         ):
             # Died by hitting wall
-            return -50, True  # reward, done
+            return -15, True  # reward, done
 
         self.snake.append(new_coordinate)
 
@@ -91,7 +91,7 @@ class Environment:
         if self.old_apple_dist == None:
             self.old_apple_dist = new_apple_dist
 
-        living_reward = 0.1 * (self.old_apple_dist - new_apple_dist)
+        living_reward = 0.5 * (self.old_apple_dist - new_apple_dist)
 
         self.old_apple_dist = new_apple_dist
 
@@ -144,65 +144,11 @@ class Environment:
         elif self.direction == Directions.RIGHT:
             values += [left * -1, above]
 
-        # values 2-4 (immediate danger)
-        changes = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-        # Iterates from starting point depending on direction
-        for i in list(range(self.direction.value, len(changes))) + list(
-            range(0, self.direction.value)
-        ):
-            change = changes[i]
-            new_coordinate = (head[0] + change[0], head[1] + change[1])
-            values.append(
-                int(
-                    new_coordinate in self.snake
-                    or new_coordinate[0] < 0
-                    or new_coordinate[0] >= self.arena_dims[0]
-                    or new_coordinate[1] < 0
-                    or new_coordinate[1] >= self.arena_dims[1]
-                )
-            )
-        values.pop(-2)  # Remove the check directly behind
-
-        # values 5-11 (surrounding danger)
-        changes = [
-            (0, -1),
-            (1, -1),
-            (1, 0),
-            (1, 1),
-            (0, 1),
-            (-1, 1),
-            (-1, 0),
-            (-1, -1),
-        ]
-        # Iterates from starting point depending on direction
-        for i in list(range(self.direction.value * 2, len(changes))) + list(
-            range(0, self.direction.value * 2)
-        ):
-            change = changes[i]
-            start = True
-            steps = 0
-            while start or not (
-                new_coordinate in self.snake
-                or new_coordinate[0] < 0
-                or new_coordinate[0] >= self.arena_dims[0]
-                or new_coordinate[1] < 0
-                or new_coordinate[1] >= self.arena_dims[1]
-            ):
-                start = False
-                steps += 1
-                new_coordinate = (
-                    head[0] + (change[0] * steps),
-                    head[1] + (change[1] * steps),
-                )
-            values.append(steps)
-        values.pop(-4)  # Remove the check directly behind
-
-        # value 12 (body/board ratio)
+        # value 2 (body/board ratio)
         values.append(len(self.snake) / (self.arena_dims[0] * self.arena_dims[1]))
 
-        # values 13-14 (tail relative coordinates)
-        values.append(self.snake[0][0] - head[0])
-        values.append(self.snake[0][1] - head[1])
+        # values 3-4 (tail relative coordinates)
+        values += [self.snake[0][0] - head[0], self.snake[0][1] - head[1]]
 
         # board
         camera_dimensions = (11, 11)

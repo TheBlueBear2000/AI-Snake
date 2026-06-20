@@ -28,8 +28,8 @@ class ActorCriticNet(keras.Model):
         self.fc_meta2 = Dense(64, activation="relu")
 
         # Combined trunk
-        self.fc1 = Dense(512, activation="relu")
-        self.fc2 = Dense(256, activation="relu")
+        self.fc1 = Dense(256, activation="relu")
+        self.fc2 = Dense(128, activation="relu")
 
         # Heads
         self.v = Dense(1, activation=None)
