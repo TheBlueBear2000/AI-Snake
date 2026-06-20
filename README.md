@@ -25,17 +25,17 @@ python snakeGame.py
 
 # Neural Network Architecture
 ## Input Features
+### Meta
 | Number | Name | Description |
-| --- | --- | --- |
-| Meta |
 | --- | --- | --- |
 | 0-1 | Food Vector | The vector of the nearest piece of food 0 is forward/backward distance, 1 is horizontal distance |
 | 2-4 | Safety | Directly adjacent objects (2 is infront, 3 is right, 4 is left) |
 | 5-11 | Range | Distances to collidables in 45 degree increments (5 is forward, then iterativley clockwise, ignoring directly behind as that is always taken) |
 | 12 | Completion | The ratio derived by doing snake-length/board-size, to score the lateness of the game |
 | 13-14 | Tail | Relative coordinates of the tail to the head |
-| --- | --- | --- |
-| Board |
+
+### Board
+| Number | Name | Description |
 | --- | --- | --- |
 | 0-120 | Board Image | An 11x11 square of the board centered around the head, processed by the CNN section of the network |
 
