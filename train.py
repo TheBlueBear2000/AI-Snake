@@ -4,6 +4,7 @@ import tensorflow_probability as tfp
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import deque
 
 from snakeGame import Environment
 from ActorCritic import ActorCriticNet
@@ -182,7 +183,7 @@ class Agent:
 
         returns = tf.stop_gradient(tf.convert_to_tensor(returns, dtype=tf.float32))
 
-        metas, boards = build_sequences(iteration["states"])
+        metas, boards = self.build_sequences(iteration["states"])
 
         old_log_probs = tf.stop_gradient(
             tf.convert_to_tensor(iteration["log_probs"], dtype=tf.float32)
@@ -285,6 +286,8 @@ if __name__ == "__main__":
     try:
         while RUN_INDEFINATE or i < ITERATIONS:
             env.reset()
+            agent.meta_buffer.clear()
+            agent.board_buffer.clear()
             observation = env.extractObservation()
             score = 0
             apples = 0
@@ -326,14 +329,22 @@ if __name__ == "__main__":
                 tick += 1
 
             iteration["states"].append(observation)
+
+            agent.meta_buffer.append(observation[0])
+            agent.board_buffer.append(observation[1])
+
+            while len(agent.meta_buffer) < 8:
+                agent.meta_buffer.appendleft(observation[0])
+                agent.board_buffer.appendleft(observation[1])
+
+            meta_seq = np.array(agent.meta_buffer)[None, ...]
+            board_seq = np.array(agent.board_buffer)[None, ...]
+
             v, _ = agent.actor_critic(
-                tf.convert_to_tensor(observation[0], dtype=tf.float32)[
-                    None, :
-                ],  # Metas
-                tf.convert_to_tensor(observation[1], dtype=tf.float32)[
-                    None, ...
-                ],  # Boards
-            )  # evaluate final state
+                tf.convert_to_tensor(meta_seq, dtype=tf.float32),
+                tf.convert_to_tensor(board_seq, dtype=tf.float32),
+            )
+
             iteration["vs"].append(v.numpy()[0, 0])
 
             advantages, returns = agent.compute_GAE_and_returns(iteration)
