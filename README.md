@@ -280,6 +280,6 @@ My research quickly led me to learning about recurrent neural networks (RNNs), b
 ## 25/06/2026
 After debugging the first implementation, these were the results:
 
-<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_21.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_21.png?raw=true" width="400">
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_22.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_22.png?raw=true" width="400">
 
 Again, there is eventual policy collapse, and no notable changes from the previous version, but now that there is further infrastructure in place I feel that I am in a good place to try tuning until I get good results.
