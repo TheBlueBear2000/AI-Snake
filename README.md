@@ -273,6 +273,13 @@ Once I was finished debugging, I trained again and got these results:
 
 <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_21.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_21.png?raw=true" width="400">
 
-As you can see, these are also okay, but still ended with poli8cy collapse and was certainly never good. This is frustrating, since before the break the snake was operating fairly well, and now that seemed challenging to recover, but with the new network structure, any recovery would hopefully be far improved. I went through and re-tweaked the reward function, and then in my research discovered that many effective snake networks use a memory system. I had never worked with memory in NNs before, so I was intrigued to try it.
+As you can see, these are also okay, but still ended with policy collapse and was certainly never good. This is frustrating, since before the break the snake was operating fairly well, and now that seemed challenging to recover, but with the new network structure, any recovery would hopefully be far improved. I went through and re-tweaked the reward function, and then in my research discovered that many effective snake networks use a memory system. I had never worked with memory in NNs before, so I was intrigued to try it.
 
 My research quickly led me to learning about recurrent neural networks (RNNs), but also about their weaknesses, such as the vanishing and exploding gradient problems. Apparently, the standard algorithms are LSTM and GRU, and since LSTM was more widely documented, I decided that this was the implementation I would try.
+
+## 25/06/2026
+After debugging the first implementation, these were the results:
+
+<img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-score_21.png?raw=true" width="400"> <img src="https://github.com/TheBlueBear2000/AI-Snake/blob/main/plots/actor-critic-apples_21.png?raw=true" width="400">
+
+Again, there is eventual policy collapse, and no notable changes from the previous version, but now that there is further infrastructure in place I feel that I am in a good place to try tuning until I get good results.
